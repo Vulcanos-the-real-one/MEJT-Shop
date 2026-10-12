@@ -290,7 +290,8 @@ async function login(){
 function setAdminUI(){
   $('#adminbar').classList.toggle('on',admin);
   const cu=CLOUD&&auth?auth.currentUser:null;
-  $('#accLabel').textContent=admin?'Admin':cu?((cu.displayName||cu.email||'Konto').split(/[ @]/)[0]):'Anmelden';
+  const usernameClean = cu ? (cu.displayName || cu.email || 'Konto') : 'Anmelden';
+  $('#accLabel').textContent = admin ? 'Admin' : usernameClean.split(usernameClean.includes('@') ? '@' : ' ')[0];
   $$('.adminOnly').forEach(e=>e.style.display=admin?'':'none');
 }
 
@@ -434,7 +435,7 @@ function updateBadges(){
 function addToCart(id,n=1,src){
   const p=products.find(x=>x.id==id);if(!p)return;
   const cur=cart[id]||0;if(cur+n>p.stock){toast('Nicht mehr Bestand verfügbar');return}
-  cart[id]=cur+n;saveCart();updateBadges();flyToCart(src);toast('Zum Warenkorb hinzugefügt');renderCart();
+  cart[id]=cur+n;saveCart();updateBadges();toast('Zum Warenkorb hinzugefügt');renderCart();
 }
 function cartItems(){return Object.keys(cart).map(id=>{const p=products.find(x=>x.id==id&&x.shop===SHOP);return p?{p,q:cart[id]}:null}).filter(Boolean)}
 function renderCart(){
@@ -452,7 +453,7 @@ function showDetail(id){
   $('#detailBox').innerHTML=`<button class="x" data-close="detailOv"><span data-ic="x"></span></button><div class="detail">
     <div><div class="main-img"><img id="dMain" src="${esc(safeUrl(imgs[0]))}" onerror="this.src='${FALLBACK}'"></div><div class="thumbs">${imgs.map((u,i)=>`<img class="${i?'':'on'}" src="${esc(safeUrl(u))}" data-thumb="${esc(safeUrl(u))}" onerror="this.src='${FALLBACK}'">`).join('')}</div></div>
     <div><div style="color:var(--link);font-size:13px">${esc(p.cat)}</div><h2>${esc(p.name)}</h2>
-    <div class="stars">${stars(p.rating)} <b>${Number(p.rating).toFixed(1)}</b> <span>(${p.reviews} Bewertungen)</span></div><hr style="margin:10px 0;border:none;border-top:1px solid #eee">
+    <div class="stars"><span>(${p.reviews} Bewertungen)</span></div><hr style="margin:10px 0;border:none;border-top:1px solid #eee">
     <div class="price">${money(p.price,p.shop)} ${p.old&&p.old>p.price?`<span class="old">${p.shop==='mc'?fmtNum(p.old):eur(p.old)}</span>`:''}</div>
     ${p.prime?`<div class="ship"><span data-ic="truck"></span> ${shipLabel(p)}</div>`:''}
     <p style="margin:12px 0;line-height:1.5">${esc(p.desc)}</p>
