@@ -611,7 +611,7 @@ function renderOrders(){
       <div><h4>Artikel</h4>${(o.items||[]).map(it=>`<div class="oi"><img src="${esc(safeUrl(it.image))}" onerror="this.src='${FALLBACK}'"><span>${esc(it.qty)}×${esc(it.name)}<br><small class="muted">${money(it.price,s)}</small></span></div>`).join('')}<div style="margin-top:8px;font-size:16px"><b>Summe: ${money(o.total,s)}</b></div><div style="font-size:12px;color:var(--muted)">${esc(o.pay||'')}</div></div>
     </div>
     <div class="orda">
-      ${o.status==='open'?`<button class="btn sm2" data-act="oship" data-id="${esc(p.id)}"><span data-ic="check"></span> Als versendet markieren</button>`:''}
+      ${o.status==='open'?`<button class="btn sm2" data-act="oship" data-id="${esc(o.id)}"><span data-ic="check"></span> Als versendet markieren</button>`:''}
       ${o.status!=='cancelled'?`<button class="btn red sm2" data-act="ocancel" data-id="${esc(o.id)}"><span data-ic="x"></span> Stornieren</button>`:`<button class="btn sm2" data-act="oreopen" data-id="${esc(o.id)}"><span data-ic="undo"></span> Wieder öffnen</button><button class="btn red sm2" data-act="odel" data-id="${esc(o.id)}"><span data-ic="trash"></span> Löschen</button>`}
       <button class="btn dark sm2" data-act="ocopy" data-id="${esc(o.id)}"><span data-ic="copy"></span> ${s==='mc'?'TP-Befehl kopieren':'Adresse kopieren'}</button>
     </div></div>`}).join(''):`<div class="empty" style="padding:30px"><div class="big"><span data-ic="box"></span></div><h3>Keine Bestellungen in dieser Ansicht</h3></div>`;
