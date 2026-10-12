@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MEJT Shop</title>
+<style>
+:root{--navy:#131921;--navy2:#232f3e;--orange:#ff9900;--yellow:#febd69;--yellow2:#f3a847;--link:#007185;--bg:#eaeded;--card:#fff;--text:#0f1111;--muted:#565959;--red:#b12704;--green:#067d62;--accent:var(--orange)}
+body.theme-mc{--navy:#062311;--navy2:#0f381d;--orange:#2ee06b;--yellow:#4ade80;--yellow2:#22c55e;--link:#16a34a;--bg:#09150d;--card:#102216;--text:#ecfdf5;--muted:#94a3b8;--green:#2ee06b;--accent:#2ee06b}
+body.theme-irl{--navy:#131921;--navy2:#232f3e;--orange:#ff9900;--yellow:#febd69;--yellow2:#f3a847;--link:#007185;--bg:#eaeded;--card:#fff;--text:#0f1111;--muted:#565959;--green:#067d62;--accent:#ff9900}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;transition:background .4s}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+input,select,textarea{font-family:inherit;font-size:14px}
+a{color:var(--link);text-decoration:none}
+.i{width:20px;height:20px;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;fill:none;display:inline-block;vertical-align:middle}
+.emg{width:16px;height:16px;display:inline-block;vertical-align:-2px}
+
+/* Loader & Vorhang */
+#loader{position:fixed;inset:0;background:#131921;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity .6s,visibility .6s}
+#loader.hide{opacity:0;visibility:hidden}
+#loader .logo{font-size:56px;font-weight:900;color:#fff;letter-spacing:2px;animation:pulse 1.2s infinite}
+#loader .logo span{color:var(--orange)}
+#loader .bar{width:200px;height:4px;background:#2c3a4a;border-radius:4px;margin-top:20px;overflow:hidden}
+#loader .bar i{display:block;height:100%;width:40%;background:var(--orange);animation:load 1s infinite ease-in-out}
+@keyframes load{0%{transform:translateX(-100%)}100%{transform:translateX(350%)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+#curtain{position:fixed;inset:0;background:var(--navy2);z-index:9500;transform:translateY(100%);pointer-events:none;transition:transform .7s cubic-bezier(.77,0,.175,1)}
+#curtain.run{transform:translateY(0);pointer-events:all}
+
+/* Landing Page (Shop-Auswahl) */
+#landing{position:fixed;inset:0;background:var(--navy);z-index:8000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;transition:opacity .6s,visibility .6s}
+body.in-shop #landing{opacity:0;visibility:hidden;pointer-events:none}
+.lp-wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:28px;width:100%;max-width:900px;z-index:2}
+.lp{background:linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:44px 32px;text-align:center;cursor:pointer;position:relative;overflow:hidden;transition:transform .4s,border-color .4s,box-shadow .4s;backdrop-filter:blur(10px)}
+.lp:hover{transform:translateY(-10px);border-color:var(--accent);box-shadow:0 25px 50px rgba(0,0,0,.5)}
+.lp .ico-box{width:90px;height:90px;border-radius:50%;margin:0 auto 22px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.08);font-size:38px;color:var(--accent);transition:transform .4s}
+.lp:hover .ico-box{transform:scale(1.12) rotate(6deg)}
+.lp h2{font-size:28px;color:#fff;margin-bottom:10px}
+.lp p{color:#cbd5e1;font-size:15px;line-height:1.5;margin-bottom:24px}
+.lp-btn{background:var(--accent);color:#111;padding:12px 28px;border-radius:30px;font-weight:700;font-size:15px;display:inline-flex;align-items:center;gap:8px;transition:transform .2s,filter .2s}
+.lp-btn:hover{filter:brightness(1.1);transform:scale(1.05)}
+.parts{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.parts span{position:absolute;bottom:-30px;border-radius:50%;animation:risePart linear infinite}
+@keyframes risePart{to{transform:translateY(-520px) scale(1.3);opacity:0}}
+
+/* Shop Header & Layout */
+body:not(.in-shop) #app{display:none}
+#app{display:block}
+.adminbar{background:#cc0c39;color:#fff;text-align:center;font-size:13px;padding:6px;display:none;z-index:200;position:relative}
+.adminbar.on{display:block;animation:slideDown .5s}
+.ticker{background:var(--accent);color:#111;font-size:13px;font-weight:600;overflow:hidden;white-space:nowrap;padding:6px 0}
+.ticker-track{display:inline-block;white-space:nowrap;animation:marquee 32s linear infinite}
+.ticker-track span{display:inline-block;padding:0 24px}
+.ticker-track i{display:inline-block;width:6px;height:6px;background:#111;border-radius:50%;vertical-align:middle;opacity:.5}
+@keyframes marquee{to{transform:translateX(-50%))}}
+header{background:var(--navy);color:#fff;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.4)}
+.top{display:flex;align-items:center;gap:12px;padding:10px 16px}
+.brand{font-size:26px;font-weight:900;color:#fff;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:8px}
+.brand small{font-size:12px;color:var(--accent);background:rgba(255,255,255,.08);padding:3px 8px;border-radius:4px}
+.search{flex:1;display:flex;border-radius:6px;overflow:hidden;max-width:700px;min-width:0;box-shadow:0 0 0 2px transparent;transition:box-shadow .3s}
+.search:focus-within{box-shadow:0 0 0 3px var(--accent)}
+.search select{background:#e2e8f0;border:none;padding:0 10px;color:#1e293b;font-weight:600}
+.search input{flex:1;border:none;padding:11px 14px;outline:none;background:#fff;color:#0f1111}
+.search button{background:var(--yellow);width:50px;display:flex;align-items:center;justify-content:center;color:#111;transition:background .2s}
+.search button:hover{background:var(--yellow2)}
+.hbtn{background:none;color:#fff;padding:6px 10px;border-radius:4px;font-size:13px;text-align:left;line-height:1.2;transition:all .2s;position:relative;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.hbtn:hover{background:rgba(255,255,255,.08)}
+.hbtn b{display:block;font-size:14px}
+.badge{position:absolute;top:0;left:22px;background:var(--accent);color:#111;border-radius:50%;min-width:18px;height:18px;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.badge.bump{animation:bump .5s}
+@keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.8) rotate(10deg)}100%{transform:scale(1)}}
+nav{background:var(--navy2);display:flex;gap:4px;padding:0 12px;overflow-x:auto;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav button{background:none;color:#fff;padding:10px 14px;font-size:14px;white-space:nowrap;border-radius:4px;position:relative;transition:.2s;display:flex;align-items:center;gap:6px}
+nav button:hover{background:rgba(255,255,255,.08)}
+nav button.active{color:var(--yellow)}
+nav button.active::after{content:"";position:absolute;left:12px;right:12px;bottom:2px;height:2px;background:var(--accent)}
+
+/* Hero Slider */
+.hero{position:relative;height:360px;overflow:hidden;background:#111}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 8%;opacity:0;transform:scale(1.06);transition:opacity 1s,transform 6s;color:#fff}
+.slide.on{opacity:1;transform:scale(1)}
+.slide h2{font-size:clamp(28px,4.5vw,48px);font-weight:900;transform:translateX(-40px);opacity:0;transition:.8s .3s;max-width:600px}
+.slide h2 span{display:inline-block;transform:translateY(20px);opacity:0;animation:wordIn .6s forwards var(--d,0s)}
+@keyframes wordIn{to{transform:none;opacity:1}}
+.slide p{font-size:clamp(14px,1.8vw,18px);margin:10px 0 20px;transform:translateX(-40px);opacity:0;transition:.8s .5s;max-width:520px;color:#e2e8f0}
+.slide .cta{align-self:flex-start;background:var(--yellow);color:#111;padding:12px 26px;border-radius:24px;font-weight:700;transform:translateY(20px);opacity:0;transition:.8s .7s,background .2s;display:inline-flex;align-items:center;gap:8px}
+.slide.on h2,.slide.on p{transform:none;opacity:1}
+.slide.on .cta{transform:none;opacity:1}
+.slide .art{position:absolute;right:8%;top:50%;transform:translateY(-50%);max-height:260px;max-width:350px;object-fit:contain;animation:floatArt 4s ease-in-out infinite;filter:drop-shadow(0 20px 30px rgba(0,0,0,.4))}
+.slide .art.ico{font-size:min(20vw,160px);display:flex;align-items:center;justify-content:center}
+@keyframes floatArt{0%,100%{transform:translateY(-50%) rotate(-4deg)}50%{transform:translateY(-60%) rotate(4deg)}}
+.hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:100px;background:linear-gradient(transparent,var(--bg));pointer-events:none}
+.arrow{position:absolute;top:40%;z-index:3;background:rgba(255,255,255,.15);color:#fff;border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;transition:.2s;backdrop-filter:blur(4px)}
+.arrow:hover{background:rgba(255,255,255,.3);transform:scale(1.1)}
+.arrow.l{left:16px}.arrow.r{right:16px}
+.dots{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:3}
+.dots i{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.4);cursor:pointer;transition:.4s}
+.dots i.on{width:28px;border-radius:6px;background:var(--accent)}
+.bubbles span{position:absolute;bottom:-40px;border-radius:50%;background:rgba(255,255,255,.08);animation:rise linear infinite}
+@keyframes rise{to{transform:translateY(-480px) scale(1.4);opacity:0}}
+
+/* Main & Cards */
+main{max-width:1450px;margin:-80px auto 0;padding:0 16px 50px;position:relative;z-index:4}
+.cats{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:20px}
+.catcard{background:var(--card);padding:18px;border-radius:10px;cursor:pointer;box-shadow:0 4px 15px rgba(0,0,0,.06);transition:transform .3s,box-shadow .3s;animation:fadeUp .6s both}
+.catcard:hover{transform:translateY(-6px);box-shadow:0 14px 28px rgba(0,0,0,.15)}
+.catcard h3{font-size:17px;margin-bottom:10px;color:var(--text)}
+.catcard .imgs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.catcard .imgs div{aspect-ratio:1;background:#f1f5f9 center/cover;border-radius:6px;transition:transform .4s}
+.catcard:hover .imgs div{transform:scale(1.04)}
+.catcard a{display:inline-flex;align-items:center;gap:4px;margin-top:12px;font-size:13px;font-weight:600}
+
+.bar2{background:var(--card);padding:14px 18px;border-radius:10px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;box-shadow:0 4px 15px rgba(0,0,0,.06)}
+.bar2 h2{font-size:20px}
+.bar2 select{padding:8px 12px;border:1px solid #cbd5e1;border-radius:6px;background:#f8fafc;color:#0f172a}
+.deal{background:linear-gradient(90deg,#cc0c39,#ff6a00);color:#fff;padding:12px 18px;border-radius:10px;margin-bottom:16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;box-shadow:0 4px 15px rgba(0,0,0,.1)}
+.deal b{font-size:18px}
+.timer{display:flex;gap:6px}
+.timer span{background:rgba(0,0,0,.35);padding:4px 8px;border-radius:6px;font-weight:700;font-variant-numeric:tabular-nums;min-width:38px;text-align:center}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.card{background:var(--card);border-radius:10px;padding:14px;display:flex;flex-direction:column;position:relative;opacity:0;transform:translateY(30px);transition:opacity .5s,transform .5s cubic-bezier(.2,.8,.2,1),box-shadow .3s;box-shadow:0 4px 15px rgba(0,0,0,.06)}
+.card.in{opacity:1;transform:none}
+.card:hover{box-shadow:0 16px 32px rgba(0,0,0,.15);z-index:2}
+.card .pic{aspect-ratio:1;overflow:hidden;border-radius:8px;background:#f8fafc;position:relative;cursor:pointer}
+.card .pic img{width:100%;height:100%;object-fit:contain;transition:transform .5s}
+.card:hover .pic img{transform:scale(1.08)}
+.skel{background:linear-gradient(90deg,#e2e8f0 25%,#f1f5f9 50%,#e2e8f0 75%);background-size:200% 100%;animation:sk 1.2s infinite}
+@keyframes sk{to{background-position:-200% 0}}
+.tag{position:absolute;top:10px;left:10px;background:#cc0c39;color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px;z-index:2}
+.heart{position:absolute;top:10px;right:10px;z-index:2;background:rgba(255,255,255,.9);border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;color:#94a3b8;transition:.2s;box-shadow:0 2px 6px rgba(0,0,0,.1)}
+.heart:hover{transform:scale(1.15);color:#e11d48}
+.heart.on{color:#e11d48;animation:heartpop .4s}
+@keyframes heartpop{0%{transform:scale(1)}40%{transform:scale(1.5)}100%{transform:scale(1)}}
+.card h3{font-size:15px;font-weight:600;margin:10px 0 6px;line-height:1.35;cursor:pointer;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:var(--text)}
+.card h3:hover{color:var(--accent)}
+.stars{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--link)}
+.starbox{position:relative;display:inline-block;font-size:15px;letter-spacing:1px;color:#cbd5e1;line-height:1}
+.starbox i{position:absolute;left:0;top:0;overflow:hidden;white-space:nowrap;color:#f59e0b;font-style:normal;width:0;transition:width 1s ease .2s}
+.price{font-size:22px;margin:6px 0;font-weight:700;color:var(--text);display:flex;align-items:baseline;gap:2px}
+.price sup{font-size:12px;font-weight:400}
+.price.mcp{color:var(--accent)}
+.price.mcp b{font-size:22px}
+.price.mcp small{font-size:12px;font-weight:500;margin-left:4px}
+.old{font-size:13px;color:var(--muted);text-decoration:line-through;margin-left:8px;font-weight:400}
+.ship{color:var(--green);font-weight:700;font-size:12px;display:flex;align-items:center;gap:4px}
+.stock{font-size:12px;color:var(--green);margin-bottom:10px}
+.stock.low{color:var(--red)}
+.add{margin-top:auto;background:var(--yellow);color:#111;border-radius:20px;padding:10px;font-weight:700;font-size:14px;position:relative;overflow:hidden;transition:background .2s,transform .15s}
+.add:hover{background:var(--yellow2)}
+.add:active{transform:scale(.95)}
+.add:disabled{background:#e2e8f0;color:#94a3b8;cursor:not-allowed}
+.ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.6);transform:scale(0);animation:rip .5s linear;pointer-events:none}
+@keyframes rip{to{transform:scale(4);opacity:0}}
+.empty{text-align:center;padding:60px 20px;background:var(--card);border-radius:10px;grid-column:1/-1;box-shadow:0 4px 15px rgba(0,0,0,.06)}
+.empty .big{font-size:56px;margin-bottom:12px;color:var(--muted)}
+
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-top:28px}
+.features div{background:var(--card);padding:20px;border-radius:10px;text-align:center;transition:.3s;box-shadow:0 4px 15px rgba(0,0,0,.06)}
+.features div:hover{transform:translateY(-4px);box-shadow:0 10px 25px rgba(0,0,0,.1)}
+.features span{font-size:32px;display:inline-block;margin-bottom:8px;color:var(--accent)}
+
+footer{background:var(--navy2);color:#cbd5e1;margin-top:40px}
+footer .back{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:rgba(255,255,255,.05);color:#fff;padding:14px;font-size:14px;transition:background .2s}
+footer .back:hover{background:rgba(255,255,255,.1)}
+footer .cols{display:flex;flex-wrap:wrap;gap:40px;justify-content:center;padding:40px 20px;font-size:14px}
+footer .cols div{min-width:160px}
+footer h4{color:#fff;margin-bottom:10px}
+footer p{margin:6px 0;cursor:pointer}
+footer p:hover{color:#fff;text-decoration:underline}
+footer .copy{background:var(--navy);text-align:center;padding:18px;font-size:13px;color:#94a3b8}
+
+/* Modals & Overlays */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:5000;display:none;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)}
+.ov.show{display:flex;animation:fade .3s}
+@keyframes fade{from{opacity:0}}
+.modal{background:var(--card);color:var(--text);border-radius:12px;width:100%;max-width:920px;max-height:92vh;overflow:auto;position:relative;animation:pop .4s cubic-bezier(.2,1.2,.3,1);box-shadow:0 25px 50px rgba(0,0,0,.3)}
+@keyframes pop{from{transform:scale(.7) translateY(30px);opacity:0}}
+.modal.sm{max-width:420px;padding:30px}
+.x{position:absolute;top:14px;right:16px;background:rgba(0,0,0,.06);width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.2s;z-index:5}
+.x:hover{background:rgba(0,0,0,.12);transform:rotate(90deg)}
+.detail{display:grid;grid-template-columns:1fr 1fr;gap:28px;padding:30px}
+.detail .main-img{aspect-ratio:1;border-radius:8px;overflow:hidden;background:#f8fafc}
+.detail .main-img img{width:100%;height:100%;object-fit:contain}
+.thumbs{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.thumbs img{width:64px;height:64px;object-fit:cover;border:2px solid #cbd5e1;border-radius:6px;cursor:pointer;transition:.2s}
+.thumbs img:hover{transform:translateY(-2px)}
+.thumbs img.on{border-color:var(--accent)}
+.detail h2{font-size:24px;margin-bottom:8px}
+.qty{display:flex;align-items:center;gap:10px;margin:14px 0}
+.qty button{width:32px;height:32px;border-radius:50%;background:#e2e8f0;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.qty button:hover{background:var(--yellow)}
+.btn{background:var(--yellow);color:#111;padding:12px 24px;border-radius:24px;font-weight:700;font-size:15px;transition:.2s;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn:hover{background:var(--yellow2);transform:translateY(-2px)}
+.btn.o{background:var(--accent);color:#111}
+.btn.dark{background:var(--navy2);color:#fff}
+.btn.red{background:#dc2626;color:#fff}
+.btn.sm2{padding:6px 12px;font-size:13px;border-radius:6px}
+
+/* Cart drawer */
+.drawer{position:fixed;top:0;right:0;height:100%;width:min(440px,100%);background:var(--card);color:var(--text);z-index:6000;transform:translateX(105%);transition:transform .4s cubic-bezier(.2,.9,.2,1);display:flex;flex-direction:column;box-shadow:-10px 0 40px rgba(0,0,0,.3)}
+.drawer.show{transform:none}
+.drawer h2{padding:18px 20px;background:var(--navy2);color:#fff;display:flex;justify-content:space-between;align-items:center}
+.dbody{flex:1;overflow:auto;padding:16px}
+.ci{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #e2e8f0;animation:slideIn .3s both}
+@keyframes slideIn{from{opacity:0;transform:translateX(30px)}}
+.ci img{width:75px;height:75px;object-fit:contain;border-radius:8px;background:#f8fafc}
+.ci .info{flex:1;font-size:14px}
+.ci.out{animation:slideOut .3s forwards}
+@keyframes slideOut{to{opacity:0;transform:translateX(80px);height:0;padding:0}}
+.dfoot{padding:18px;border-top:1px solid #e2e8f0;background:rgba(0,0,0,.02)}
+.dfoot .tot{font-size:18px;margin-bottom:12px;display:flex;justify-content:space-between}
+
+/* Toasts & Progress */
+#toasts{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9900;display:flex;flex-direction:column;gap:8px;align-items:center}
+.toast{background:var(--navy2);color:#fff;padding:12px 24px;border-radius:30px;box-shadow:0 8px 25px rgba(0,0,0,.3);animation:toast .4s cubic-bezier(.2,1.4,.3,1),toastout .3s 2.7s forwards;font-weight:600;font-size:14px;border:1px solid rgba(255,255,255,.1)}
+@keyframes toast{from{transform:translateY(40px) scale(.8);opacity:0}}
+@keyframes toastout{to{transform:translateY(15px);opacity:0}}
+#prog{position:fixed;top:0;left:0;height:3px;background:var(--accent);z-index:9500;transition:width .1s}
+#toTop{position:fixed;right:20px;bottom:20px;width:46px;height:46px;border-radius:50%;background:var(--accent);color:#111;display:flex;align-items:center;justify-content:center;font-size:20px;z-index:3000;transform:scale(0);transition:.3s;box-shadow:0 4px 15px rgba(0,0,0,.3)}
+#toTop.show{transform:scale(1)}
+#toTop:hover{transform:scale(1.1) translateY(-3px)}
+
+/* Admin Tabs & Form */
+.tabs{display:flex;border-bottom:2px solid #e2e8f0;padding:0 20px;gap:6px;margin-top:10px;overflow-x:auto;scrollbar-width:none}
+.tabs button{background:none;padding:12px 18px;font-size:15px;color:var(--text);border-bottom:3px solid transparent;margin-bottom:-2px;transition:.2s;white-space:nowrap;font-weight:600}
+.tabs button.on{border-color:var(--accent);color:var(--accent)}
+.apane{padding:24px;display:none}
+.apane.on{display:block;animation:fadeUp .3s}
+.f{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.f label{font-size:13px;font-weight:700}
+.f input,.f select,.f textarea{padding:10px 12px;border:1px solid #cbd5e1;border-radius:6px;background:var(--card);color:var(--text);transition:.2s;width:100%}
+.f input:focus,.f select:focus,.f textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(46,224,107,.2)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.prev{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.prev img{width:70px;height:70px;object-fit:cover;border-radius:6px;border:1px solid #cbd5e1}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td,th{padding:10px;border-bottom:1px solid #e2e8f0;text-align:left}
+td img{width:46px;height:46px;object-fit:cover;border-radius:6px;background:#f8fafc}
+.shake{animation:shake .4s}
+@keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.note{background:rgba(255,153,0,.12);border-left:4px solid var(--orange);padding:12px;font-size:13px;margin-bottom:16px;border-radius:6px;line-height:1.5}
+.confetti{position:fixed;top:-20px;width:10px;height:16px;z-index:9999;pointer-events:none}
+
+/* Admin Startseiten-Editor */
+.ed{background:rgba(0,0,0,.03);border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin-bottom:16px}
+.edh{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.edact{display:flex;gap:6px}
+.sprev{height:110px;border-radius:6px;margin-bottom:12px;display:flex;flex-direction:column;justify-content:center;padding:0 20px;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,.4)}
+.sprev b{font-size:20px;margin-bottom:4px}
+.sprev span{font-size:13px;opacity:.9}
+
+/* Bestellungen & Kasse */
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.chip{background:#f1f5f9;color:var(--text);border-radius:20px;padding:8px 16px;font-size:14px;font-weight:600;transition:.2s;border:1px solid #cbd5e1}
+.chip:hover{background:#e2e8f0}
+.chip.on{background:var(--navy2);color:#fff;border-color:var(--navy2)}
+.chip b{margin-left:6px;background:var(--accent);color:#111;border-radius:10px;padding:0 7px;font-size:12px}
+.ord{border:1px solid #e2e8f0;border-radius:10px;margin-bottom:16px;overflow:hidden;box-shadow:0 4px 15px rgba(0,0,0,.04)}
+.ordh{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;background:#f8fafc;padding:12px 16px;font-size:13px;border-bottom:1px solid #e2e8f0}
+.st{padding:4px 12px;border-radius:12px;font-size:12px;font-weight:700;color:#fff}
+.st.open{background:#d97706}.st.shipped{background:#059669}.st.cancelled{background:#dc2626}
+.ordb{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:16px}
+.ordb h4{font-size:12px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.oi{display:flex;gap:10px;align-items:center;margin-bottom:8px;font-size:13px}
+.oi img{width:42px;height:42px;object-fit:cover;border-radius:6px}
+.orda{display:flex;gap:8px;flex-wrap:wrap;padding:0 16px 16px}
+.chk{display:grid;grid-template-columns:1.2fr 1fr;gap:28px;padding:28px}
+.sum{background:rgba(0,0,0,.03);border-radius:8px;padding:14px;font-size:14px}
+.sum div{display:flex;justify-content:space-between;gap:10px;padding:4px 0}
+.okc{width:80px;height:80px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:36px}
+.sb{font-size:11px;font-weight:800;padding:2px 6px;border-radius:4px;text-transform:uppercase}
+.sb.mc{background:#16a34a;color:#fff}
+.sb.irl{background:#0284c7;color:#fff}
+
+@media(max-width:768px){
+ .detail,.chk,.ordb{grid-template-columns:1fr}.top{flex-wrap:wrap}.search{order:5;flex-basis:100%}
+ .hero{height:320px}.row2,.row3{grid-template-columns:1fr}.hbtn span.t{display:none}
+}
+</style>
+</head>
+<body>
+
+<div id="loader"><div class="logo">MEJT<span>.</span></div><div class="bar"><i></i></div></div>
+<div id="curtain"></div>
+<div id="prog"></div>
+
+<!-- Shop-Auswahl Landing Page -->
+<div id="landing" class="lp-wrap" style="position:fixed;inset:0;background:#0d1117;z-index:8000;display:flex;align-items:center;justify-content:center;padding:24px">
+  <div style="width:100%;max-width:850px;text-align:center">
+    <h1 style="color:#fff;font-size:clamp(32px,5vw,48px);font-weight:900;margin-bottom:8px">MEJT Shop</h1>
+    <p style="color:#94a3b8;font-size:16px;margin-bottom:36px">Wähle deinen Shop aus, um fortzufahren</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px">
+      <div class="lp" data-shop="mc">
+        <div class="parts"></div>
+        <div class="ico-box" id="artMc"></div>
+        <h2>Minecraft Shop</h2>
+        <p>Erwerbe Ausrüstung, Rüstungen und Spezialitems direkt für deinen Server. Bezahlung in Emeralds.</p>
+        <button class="lp-btn">Minecraft Shop betreten <span data-ic="arrow"></span></button>
+      </div>
+      <div class="lp" data-shop="irl">
+        <div class="parts"></div>
+        <div class="ico-box" id="artIrl"></div>
+        <h2>IRL Shop</h2>
+        <p>Entdecke Elektronik, Gadgets, Haushaltswaren und mehr für deinen Alltag zu fairen Preisen.</p>
+        <button class="lp-btn">IRL Shop betreten <span data-ic="arrow"></span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Hauptanwendung -->
+<div id="app">
+  <div class="adminbar" id="adminbar">Admin-Modus aktiv – du kannst Produkte und Startseiten verwalten</div>
+  <div class="ticker" id="ticker"><div class="ticker-track" id="tkTrack"></div></div>
+
+  <header id="hdr">
+    <div class="top">
+      <div class="brand" id="logo">MEJT<small id="brandTag">Shop</small></div>
+      <form class="search" id="searchForm">
+        <select id="searchCat"><option value="all">Alle</option></select>
+        <input id="q" placeholder="Shop durchsuchen" autocomplete="off">
+        <button type="submit" aria-label="Suchen"><span data-ic="search"></span></button>
+      </form>
+      <button class="hbtn" id="swapBtn" title="Shop wechseln"><span data-ic="swap"></span><span class="t">Shop wechseln</span></button>
+      <button class="hbtn" id="accBtn"><span data-ic="user"></span><span class="t">Hallo,</span><b id="accLabel">Anmelden</b></button>
+      <button class="hbtn" id="wishBtn"><span data-ic="heart"></span><span class="t">Merkzettel</span><b><span id="wishCount">0</span></b></button>
+      <button class="hbtn adminOnly" id="ordBtn" style="display:none"><span data-ic="box"></span><span class="t">Admin</span><b><span id="ordCount">0</span> offen</b></button>
+      <button class="hbtn cartbtn" id="cartBtn"><span data-ic="cart"></span><span class="badge" id="cartCount">0</span><b class="t">Warenkorb</b></button>
+    </div>
+    <nav id="nav"></nav>
+  </header>
+
+  <section class="hero" id="hero">
+    <div class="bubbles" id="bubbles"></div>
+    <div id="slides"></div>
+    <button class="arrow l" id="prev"><span data-ic="left"></span></button>
+    <button class="arrow r" id="next"><span data-ic="right"></span></button>
+    <div class="dots" id="dots"></div>
+  </section>
+
+  <main>
+    <div class="cats" id="catCards"></div>
+    <div class="deal" id="dealBar"><b>Blitzangebote</b><span>endet heute</span><div class="timer"><span id="th">00</span><span id="tm">00</span><span id="ts">00</span></div></div>
+    <div class="bar2"><h2 id="listTitle">Alle Produkte</h2>
+      <div><label style="font-size:13px">Sortieren: </label>
+      <select id="sort"><option value="feat">Empfohlen</option><option value="pa">Preis aufsteigend</option><option value="pd">Preis absteigend</option><option value="rt">Beste Bewertung</option><option value="new">Neueste</option></select></div>
+    </div>
+    <div class="grid" id="grid"></div>
+    <div class="features" id="features"></div>
+  </main>
+
+  <footer>
+    <button class="back" id="backTop"><span data-ic="up"></span> Zurück nach oben</button>
+    <div class="cols">
+      <div><h4>MEJT Shop</h4><p id="footSwap">Shop wechseln</p><p>Über uns</p><p>Karriere</p></div>
+      <div><h4>Hilfe</h4><p>Versand & Lieferung</p><p>Rückgabe</p><p>Kontakt</p></div>
+      <div><h4>Rechtliches</h4><p>AGB</p><p>Datenschutz</p><p>Impressum</p></div>
+    </div>
+    <div class="copy">© <span id="yr"></span> MEJT Shop – Alle Rechte vorbehalten</div>
+  </footer>
+</div>
+
+<button id="toTop" aria-label="Nach oben"><span data-ic="up"></span></button>
+<div id="toasts"></div>
+
+<!-- Modals -->
+<div class="ov" id="detailOv"><div class="modal" id="detailBox"></div></div>
+<div class="ov" id="cartOv" style="justify-content:flex-end;padding:0"></div>
+<aside class="drawer" id="drawer">
+  <h2><span>Warenkorb</span><button class="x" id="closeCart" style="position:static"><span data-ic="x"></span></button></h2>
+  <div class="dbody" id="cartBody"></div>
+  <div class="dfoot"><div class="tot"><span>Summe:</span> <b id="cartTotal">0,00 €</b></div><button class="btn o" style="width:100%" id="checkout">Zur Kasse</button></div>
+</aside>
+
+<div class="ov" id="coOv"><div class="modal" id="coBox"></div></div>
+
+<div class="ov" id="loginOv"><div class="modal sm" id="loginBox">
+  <button class="x" data-close="loginOv"><span data-ic="x"></span></button>
+  <h2 id="lTitle" style="margin-bottom:6px">Admin-Anmeldung</h2>
+  <p id="lMsg" class="note" style="display:none"></p>
+  <p id="loginHint" style="font-size:13px;color:var(--muted);margin-bottom:14px">Standard: <b>admin</b> / <b>admin123</b></p>
+  <div class="f" id="lNameBox" style="display:none"><label>Dein Name</label><input id="lName" autocomplete="name" maxlength="60"></div>
+  <div class="f"><label id="lUserLbl">Benutzername</label><input id="lUser" autocomplete="username"></div>
+  <div class="f"><label>Passwort</label><input id="lPass" type="password" autocomplete="current-password"></div>
+  <button class="btn o" style="width:100%" id="doLogin">Anmelden</button>
+  <div id="lSwitch" style="display:none;font-size:13px;margin-top:14px;text-align:center"><a href="#" id="lToggle">Neu hier? Konto erstellen</a><br><a href="#" id="lForgot" style="color:var(--muted)">Passwort vergessen?</a></div>
+</div></div>
+
+<div class="ov" id="accOv"><div class="modal sm">
+  <button class="x" data-close="accOv"><span data-ic="x"></span></button>
+  <h2 style="margin-bottom:6px">Mein Konto</h2>
+  <p id="accInfo" style="margin-bottom:16px;font-size:14px;line-height:1.5"></p>
+  <button class="btn dark" style="width:100%" id="accLogout">Abmelden</button>
+</div></div>
+
+<!-- Admin Panel -->
+<div class="ov" id="adminOv"><div class="modal">
+  <button class="x" data-close="adminOv"><span data-ic="x"></span></button>
+  <h2 style="padding:20px 20px 0">Admin-Bereich</h2>
+  <div class="tabs"><button class="on" data-tab="aList">Produkte</button><button data-tab="aForm" id="tabForm">Produkt hinzufügen</button><button data-tab="aHome" id="tabHome">Startseite / Banner</button><button data-tab="aOrders" id="tabOrders">Bestellungen</button><button data-tab="aSet">Einstellungen</button></div>
+
+  <div class="apane on" id="aList">
+    <div class="chips" id="aShopChips" style="margin-bottom:14px"></div>
+    <div style="overflow:auto"><table><thead><tr><th></th><th>Name</th><th>Shop</th><th>Kategorie</th><th>Preis</th><th>Lager</th><th></th></tr></thead><tbody id="aRows"></tbody></table></div>
+  </div>
+
+  <div class="apane" id="aForm">
+    <h3 id="formTitle" style="margin-bottom:10px">Neues Produkt</h3>
+    <input type="hidden" id="pId">
+    <div class="row2">
+      <div class="f"><label>Shop *</label><select id="pShop"><option value="mc">Minecraft Shop (Emeralds)</option><option value="irl">IRL Shop (Euro)</option></select></div>
+      <div class="f"><label>Produktname *</label><input id="pName"></div>
+    </div>
+    <div class="row3">
+      <div class="f"><label id="pPriceLbl">Preis *</label><input id="pPrice" type="number" step="0.01" min="0"></div>
+      <div class="f"><label>Alter Preis (optional)</label><input id="pOld" type="number" step="0.01" min="0"></div>
+      <div class="f"><label>Lagerbestand</label><input id="pStock" type="number" min="0" value="10"></div>
+    </div>
+    <div class="row3">
+      <div class="f"><label>Kategorie *</label><input id="pCat" list="catList" placeholder="z. B. Ausrüstung"><datalist id="catList"></datalist></div>
+      <div class="f"><label>Bewertung (0–5)</label><input id="pRating" type="number" step="0.1" min="0" max="5" value="4.5"></div>
+      <div class="f"><label>Anzahl Bewertungen</label><input id="pReviews" type="number" min="0" value="12"></div>
+    </div>
+    <div class="f"><label>Bild-Adressen (URLs) – eine pro Zeile, die erste ist das Hauptbild *</label><textarea id="pImgs" rows="4" placeholder="https://..."></textarea></div>
+    <div class="prev" id="pPrev"></div>
+    <div class="f"><label>Beschreibung</label><textarea id="pDesc" rows="3"></textarea></div>
+    <label style="font-size:14px"><input type="checkbox" id="pPrime" checked> Express-/Prime-Lieferung anzeigen</label>
+    <div style="margin-top:14px;display:flex;gap:10px"><button class="btn o" id="saveProd">Speichern</button><button class="btn" id="resetForm">Leeren</button></div>
+  </div>
+
+  <!-- Startseiten & Banner Editor -->
+  <div class="apane" id="aHome">
+    <div class="chips" id="homeChips"></div>
+    <p class="muted" style="font-size:13px;margin-bottom:16px">Passe hier das Banner (Slides), die Werbeleiste (Ticker) und die Kategorien-Karten des ausgewählten Shops an.</p>
+    
+    <h3 style="margin-bottom:8px">Banner (Slides)</h3>
+    <div id="slideEd"></div>
+    <button class="btn sm2" data-hact="sadd" style="margin-bottom:24px"><span data-ic="plus"></span> Slide hinzufügen</button>
+
+    <h3 style="margin-bottom:8px">Werbeleiste (Ticker)</h3>
+    <div class="f"><label>Einträge (einer pro Zeile)</label><textarea id="tickerEd" rows="3"></textarea></div>
+
+    <h3 style="margin:24px 0 8px">Kategorien-Karten (max. 4-6)</h3>
+    <div id="catEd"></div>
+    <button class="btn sm2" data-hact="cadd" style="margin-bottom:24px"><span data-ic="plus"></span> Karte hinzufügen</button>
+
+    <div style="display:flex;gap:10px;border-top:1px solid #e2e8f0;padding-top:20px">
+      <button class="btn o" id="saveHome">Änderungen speichern</button>
+      <button class="btn red" id="resetHome">Auf Standard zurücksetzen</button>
+    </div>
+  </div>
+
+  <div class="apane" id="aOrders">
+    <div class="chips" id="ordShopChips" style="margin-bottom:10px"></div>
+    <div class="chips" id="ordChips"></div>
+    <div id="ordList"></div>
+  </div>
+
+  <div class="apane" id="aSet">
+    <div class="note" id="noteCloud" style="display:none"><b>Cloud-Modus aktiv:</b> Alle Änderungen werden live in Firebase gespeichert und sind sofort für alle Kunden sichtbar.</div>
+    <div class="note" id="noteLocal"><b>Wichtig:</b> GitHub Pages ist statisch. Produkte werden lokal im Browser gespeichert. Damit sie für alle sichtbar sind: unten <b>Exportieren</b> → Datei als <code>products.json</code> in dein Repository hochladen.</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px">
+      <button class="btn dark" id="exportBtn"><span data-ic="download"></span> Exportieren (products.json)</button>
+      <button class="btn dark" id="importBtn"><span data-ic="upload"></span> Importieren</button>
+      <input type="file" id="importFile" accept=".json" hidden>
+      <button class="btn dark" id="seedBtn"><span data-ic="plus"></span> Standardprodukte laden</button>
+    </div>
+    <div id="credLocal">
+      <h3 style="margin-bottom:8px">Zugangsdaten ändern</h3>
+      <div class="row2"><div class="f"><label>Neuer Benutzername</label><input id="nUser"></div><div class="f"><label>Neues Passwort</label><input id="nPass" type="password"></div></div>
+      <button class="btn o" id="saveCred">Speichern</button>
+    </div>
+    <div id="credCloud" style="display:none">
+      <h3 style="margin-bottom:8px">Passwort ändern</h3>
+      <button class="btn o" id="resetPw">Passwort-Reset-E-Mail senden</button>
+    </div>
+    <hr style="margin:20px 0;border:none;border-top:1px solid #e2e8f0">
+    <button class="btn red" id="logout"><span data-ic="logout"></span> Abmelden</button>
+  </div>
+</div></div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
