@@ -3,343 +3,317 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MEJT Shop – Alles an einem Ort</title>
+<title>MEJT Forge &amp; Market – Cyber-Medieval Edition</title>
 <style>
-:root{--navy:#131921;--navy2:#232f3e;--orange:#ff9900;--yellow:#febd69;--yellow2:#f3a847;--link:#007185;--bg:#eaeded;--card:#fff;--text:#0f1111;--muted:#565959;--red:#b12704;--green:#067d62}
+:root{
+  --iron:#0f1117;
+  --steel:#181c25;
+  --steel-light:#232936;
+  --brass:#f3ba2f;
+  --brass-dark:#c9961a;
+  --copper:#ff7b00;
+  --ember:#ff3d00;
+  --glow:rgba(243, 186, 47, 0.25);
+  --bg:radial-gradient(circle at 50% 0%, #1c1714 0%, #0b0d12 60%, #07080a 100%);
+  --card:rgba(24, 28, 37, 0.75);
+  --card-border:rgba(243, 186, 47, 0.2);
+  --text:#f3f4f6;
+  --muted:#9ca3af;
+  --red:#ef4444;
+  --green:#10b981;
+}
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{font-family:"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+body{font-family:"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);background-attachment:fixed;color:var(--text);overflow-x:hidden;min-height:100vh}
 button{font-family:inherit;cursor:pointer;border:none}
-input,select,textarea{font-family:inherit;font-size:14px}
-a{color:var(--link);text-decoration:none}
+input,select,textarea{font-family:inherit;font-size:14px;background:var(--steel);color:var(--text);border:1px solid var(--card-border)}
+a{color:var(--brass);text-decoration:none}
 
-/* Loader */
-#loader{position:fixed;inset:0;background:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity .6s,visibility .6s}
+/* Loader mit Schmiede-Glut Animation */
+#loader{position:fixed;inset:0;background:var(--iron);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity .6s,visibility .6s}
 #loader.hide{opacity:0;visibility:hidden}
-#loader .logo{font-size:56px;font-weight:900;color:#fff;letter-spacing:2px;animation:pulse 1.2s infinite}
-#loader .logo span{color:var(--orange)}
-#loader .bar{width:200px;height:4px;background:#2c3a4a;border-radius:4px;margin-top:20px;overflow:hidden}
-#loader .bar i{display:block;height:100%;width:40%;background:var(--orange);animation:load 1s infinite ease-in-out}
+#loader .logo{font-size:52px;font-weight:900;color:var(--brass);letter-spacing:3px;text-shadow:0 0 25px rgba(243,186,47,0.6);animation:pulse 1.2s infinite}
+#loader .logo span{color:var(--copper)}
+#loader .bar{width:220px;height:5px;background:var(--steel);border-radius:3px;margin-top:20px;overflow:hidden;border:1px solid var(--card-border)}
+#loader .bar i{display:block;height:100%;width:40%;background:linear-gradient(90deg,var(--copper),var(--brass),var(--ember));animation:load 1s infinite ease-in-out}
 @keyframes load{0%{transform:translateX(-100%)}100%{transform:translateX(350%)}}
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
 
-/* Ticker */
-.ticker{background:var(--orange);color:#111;font-size:13px;font-weight:600;overflow:hidden;white-space:nowrap;padding:5px 0}
-.ticker div{display:inline-block;padding-left:100%;animation:marquee 28s linear infinite}
+/* Schwebende Funken / Glut-Partikel */
+.embers{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden}
+.embers span{position:absolute;bottom:-20px;background:var(--ember);border-radius:50%;box-shadow:0 0 10px var(--copper);animation:rise linear infinite}
+@keyframes rise{0%{transform:translateY(0) scale(1);opacity:1}100%{transform:translateY(-110vh) scale(0.2);opacity:0}}
+
+/* Ticker / Werbebanner */
+.ticker{background:linear-gradient(90deg,#7c2d12,#9a3412,#c2410c,#9a3412);background-size:300% 300%;animation:gradientBG 8s ease infinite;color:#fde047;font-size:13px;font-weight:700;overflow:hidden;white-space:nowrap;padding:7px 0;border-bottom:1px solid var(--card-border);box-shadow:0 2px 10px rgba(0,0,0,0.5);position:relative;z-index:2}
+.ticker div{display:inline-block;padding-left:100%;animation:marquee 32s linear infinite}
 @keyframes marquee{to{transform:translateX(-100%)}}
+@keyframes gradientBG{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 
-/* Header */
-header{background:var(--navy);color:#fff;position:sticky;top:0;z-index:100;animation:slideDown .7s ease both;box-shadow:0 2px 10px rgba(0,0,0,.4)}
-@keyframes slideDown{from{transform:translateY(-100%)}to{transform:none}}
-.top{display:flex;align-items:center;gap:14px;padding:8px 16px}
-.brand{font-size:28px;font-weight:900;letter-spacing:1px;color:#fff;padding:4px 8px;border:1px solid transparent;border-radius:3px;cursor:pointer;white-space:nowrap;background:linear-gradient(90deg,#fff,var(--orange),#fff);background-size:200% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:shine 3s linear infinite}
-@keyframes shine{to{background-position:200% center}}
-.brand small{font-size:12px;-webkit-text-fill-color:var(--orange)}
-.search{flex:1;display:flex;border-radius:6px;overflow:hidden;transition:box-shadow .3s;min-width:0}
-.search:focus-within{box-shadow:0 0 0 3px var(--orange)}
-.search select{background:#e6e6e6;border:none;padding:0 8px;color:#333;max-width:130px}
-.search input{flex:1;border:none;padding:11px 12px;outline:none;min-width:0}
-.search button{background:var(--yellow);width:48px;font-size:14px;font-weight:600;transition:background .2s}
-.search button:hover{background:var(--yellow2)}
-.hbtn{background:none;color:#fff;padding:6px 10px;border:1px solid transparent;border-radius:3px;font-size:13px;text-align:left;line-height:1.2;transition:all .2s;position:relative;white-space:nowrap}
-.hbtn:hover{border-color:#fff;transform:translateY(-1px)}
+/* Header mit Glassmorphism */
+header{background:rgba(15, 17, 23, 0.85);backdrop-filter:blur(12px);color:#fff;position:sticky;top:0;z-index:100;box-shadow:0 8px 32px rgba(0,0,0,0.6);border-bottom:1px solid var(--card-border)}
+.top{display:flex;align-items:center;gap:14px;padding:12px 16px;position:relative;z-index:2}
+.brand{font-size:28px;font-weight:900;letter-spacing:1.5px;color:var(--brass);padding:4px 12px;border-radius:6px;cursor:pointer;white-space:nowrap;background:linear-gradient(135deg,var(--steel),var(--iron));border:1px solid var(--card-border);text-shadow:0 0 10px rgba(243,186,47,0.4);transition:transform .3s}
+.brand:hover{transform:scale(1.03)}
+.brand small{font-size:11px;color:var(--copper);display:block;letter-spacing:1px}
+.search{flex:1;display:flex;border-radius:8px;overflow:hidden;border:1px solid var(--card-border);min-width:0;box-shadow:0 4px 20px rgba(0,0,0,0.3);background:var(--steel)}
+.search select{background:rgba(255,255,255,0.03);border:none;padding:0 10px;color:var(--text);font-weight:600;max-width:130px;border-right:1px solid var(--card-border)}
+.search input{flex:1;border:none;padding:12px 14px;outline:none;min-width:0;background:transparent;color:var(--text)}
+.search button{background:linear-gradient(135deg,var(--copper),var(--brass));color:#000;width:54px;font-size:14px;font-weight:bold;transition:all .2s}
+.search button:hover{filter:brightness(1.15)}
+.hbtn{background:rgba(255,255,255,0.04);color:var(--text);padding:8px 12px;border:1px solid var(--card-border);border-radius:8px;font-size:13px;text-align:left;line-height:1.2;transition:all .3s;position:relative;white-space:nowrap;backdrop-filter:blur(4px)}
+.hbtn:hover{border-color:var(--brass);color:var(--brass);transform:translateY(-2px);box-shadow:0 4px 15px var(--glow)}
 .hbtn b{display:block;font-size:14px}
-.cartbtn{font-size:15px;display:flex;align-items:center;gap:6px}
-.badge{position:absolute;top:-4px;left:26px;background:var(--orange);color:#111;border-radius:50%;min-width:20px;height:20px;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.cartbtn{font-size:15px;display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(255,123,0,0.2),rgba(243,186,47,0.2));border-color:var(--copper)}
+.badge{position:absolute;top:-6px;left:26px;background:var(--ember);color:#fff;border-radius:50%;min-width:22px;height:22px;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 0 10px var(--ember);border:1px solid var(--brass)}
 .badge.bump{animation:bump .5s}
 @keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.9) rotate(15deg)}100%{transform:scale(1)}}
-nav{background:var(--navy2);display:flex;gap:4px;padding:0 10px;overflow-x:auto;scrollbar-width:none}
-nav button{background:none;color:#fff;padding:9px 12px;font-size:14px;white-space:nowrap;border:1px solid transparent;border-radius:3px;position:relative;transition:.2s}
-nav button:hover{border-color:#fff}
-nav button.active{color:var(--yellow)}
-nav button.active::after{content:"";position:absolute;left:12px;right:12px;bottom:2px;height:2px;background:var(--orange);animation:grow .3s}
-@keyframes grow{from{transform:scaleX(0)}}
-
-/* Shop Switcher in Nav / Header */
-.shop-switch{background:#37475a;color:#fff;padding:6px 12px;border-radius:4px;font-weight:600;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;border:1px solid #485769}
-.shop-switch:hover{background:#485769}
-
-/* Hero */
-.hero{position:relative;height:340px;overflow:hidden;background:#222}
-.slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 8%;opacity:0;transform:scale(1.08);transition:opacity 1s,transform 6s;color:#fff}
-.slide.on{opacity:1;transform:scale(1)}
-.slide h2{font-size:clamp(28px,5vw,52px);font-weight:900;transform:translateX(-60px);opacity:0;transition:.8s .3s}
-.slide p{font-size:clamp(14px,2vw,20px);margin:10px 0 18px;transform:translateX(-60px);opacity:0;transition:.8s .5s;max-width:520px}
-.slide .cta{align-self:flex-start;background:var(--yellow);color:#111;padding:12px 26px;border-radius:24px;font-weight:700;transform:translateY(30px);opacity:0;transition:.8s .7s,background .2s}
-.slide.on h2,.slide.on p{transform:none;opacity:1}
-.slide.on .cta{transform:none;opacity:1;animation:wobble 2.5s 2s infinite}
-@keyframes wobble{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
-.hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:120px;background:linear-gradient(transparent,var(--bg));pointer-events:none}
-.arrow{position:absolute;top:35%;z-index:3;background:rgba(255,255,255,.2);color:#fff;font-size:28px;width:46px;height:90px;transition:.2s;backdrop-filter:blur(4px)}
-.arrow:hover{background:rgba(255,255,255,.5)}
-.arrow.l{left:0;border-radius:0 8px 8px 0}.arrow.r{right:0;border-radius:8px 0 0 8px}
-.dots{position:absolute;bottom:90px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:3}
-.dots i{width:10px;height:10px;border-radius:10px;background:rgba(255,255,255,.5);cursor:pointer;transition:.4s}
-.dots i.on{width:30px;background:var(--orange)}
-.bubbles span{position:absolute;bottom:-40px;border-radius:50%;background:rgba(255,255,255,.12);animation:rise linear infinite}
-@keyframes rise{to{transform:translateY(-480px) scale(1.4);opacity:0}}
+nav{background:rgba(24, 28, 37, 0.9);backdrop-filter:blur(8px);display:flex;gap:6px;padding:8px 16px;overflow-x:auto;scrollbar-width:none;border-top:1px solid var(--card-border)}
+nav button{background:transparent;color:var(--muted);padding:8px 14px;font-size:13px;font-weight:600;white-space:nowrap;border-radius:6px;position:relative;transition:.3s;letter-spacing:.5px}
+nav button:hover{color:var(--brass);background:rgba(243,186,47,0.08);transform:translateY(-1px)}
+nav button.active{color:#000;background:linear-gradient(135deg,var(--brass),var(--copper));font-weight:700;box-shadow:0 4px 15px var(--glow)}
 
 /* Main */
-main{max-width:1500px;margin:-110px auto 0;padding:0 14px 40px;position:relative;z-index:4}
-.cats{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:18px}
-.catcard{background:var(--card);padding:16px;border-radius:6px;cursor:pointer;transition:transform .3s,box-shadow .3s;animation:fadeUp .7s both}
-.catcard:hover{transform:translateY(-8px) rotate(-.6deg);box-shadow:0 14px 28px rgba(0,0,0,.25)}
-.catcard h3{font-size:18px;margin-bottom:8px}
+main{max-width:1500px;margin:28px auto 0;padding:0 14px 40px;position:relative;z-index:2}
+.cats{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:20px}
+.catcard{background:var(--card);backdrop-filter:blur(10px);padding:18px;border-radius:12px;cursor:pointer;transition:all .35s cubic-bezier(.2,.8,.2,1);animation:fadeUp .7s both;border:1px solid var(--card-border);box-shadow:0 8px 30px rgba(0,0,0,0.4)}
+.catcard:hover{transform:translateY(-6px) scale(1.02);border-color:var(--brass);box-shadow:0 12px 35px var(--glow)}
+.catcard h3{font-size:17px;margin-bottom:10px;color:var(--brass);font-weight:700;letter-spacing:.5px}
 .catcard .imgs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.catcard .imgs div{aspect-ratio:1;background:#f3f3f3 center/cover;border-radius:4px;transition:transform .4s}
+.catcard .imgs div{aspect-ratio:1;background:#111 center/cover;border-radius:6px;border:1px solid var(--card-border);transition:transform .4s}
 .catcard:hover .imgs div:nth-child(odd){transform:scale(1.06)}
-.catcard a{display:inline-block;margin-top:10px;font-size:13px}
-@keyframes fadeUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:none}}
+.catcard a{display:inline-block;margin-top:12px;font-size:12px;font-weight:700;color:var(--copper);text-transform:uppercase;letter-spacing:1px;transition:color .2s}
+.catcard:hover a{color:var(--brass)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
 
-.bar2{background:var(--card);padding:12px 16px;border-radius:6px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;animation:fadeUp .6s both}
-.bar2 h2{font-size:20px}
-.bar2 select{padding:6px 10px;border:1px solid #d5d9d9;border-radius:8px;background:#f0f2f2}
-.deal{background:linear-gradient(90deg,#cc0c39,#ff6a00);color:#fff;padding:10px 16px;border-radius:6px;margin-bottom:14px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;animation:fadeUp .6s both}
-.deal b{font-size:18px}
-.timer{display:flex;gap:6px}
-.timer span{background:rgba(0,0,0,.35);padding:4px 8px;border-radius:5px;font-weight:700;font-variant-numeric:tabular-nums;min-width:38px;text-align:center}
+.bar2{background:var(--card);backdrop-filter:blur(10px);padding:14px 20px;border-radius:12px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;animation:fadeUp .6s both;border:1px solid var(--card-border);border-left:4px solid var(--brass);box-shadow:0 8px 25px rgba(0,0,0,0.4)}
+.bar2 h2{font-size:20px;font-weight:800;background:linear-gradient(135deg,var(--text),var(--brass));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:0.5px}
+.bar2 select{padding:8px 12px;border:1px solid var(--card-border);border-radius:8px;background:var(--steel);color:var(--text);font-weight:600}
+.deal{background:linear-gradient(135deg,#451a03,#7c2d12,#451a03);background-size:200% 200%;animation:gradientBG 6s ease infinite;color:var(--brass);padding:14px 20px;border-radius:12px;margin-bottom:16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;animation:fadeUp .6s both;border:1px solid var(--copper);box-shadow:0 8px 30px rgba(255,123,0,0.2)}
+.deal b{font-size:18px;color:#fff;letter-spacing:1px;text-shadow:0 0 10px rgba(255,255,255,0.3)}
+.timer{display:flex;gap:8px}
+.timer span{background:rgba(0,0,0,0.5);border:1px solid var(--card-border);padding:6px 10px;border-radius:6px;font-weight:800;font-variant-numeric:tabular-nums;min-width:40px;text-align:center;font-size:15px;color:var(--brass);box-shadow:inset 0 2px 6px rgba(0,0,0,0.8)}
 
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
-.card{background:var(--card);border-radius:8px;padding:12px;display:flex;flex-direction:column;position:relative;opacity:0;transform:translateY(40px);transition:opacity .6s,transform .6s cubic-bezier(.2,.8,.2,1),box-shadow .3s;transform-style:preserve-3d;will-change:transform}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.card{background:var(--card);backdrop-filter:blur(10px);border-radius:12px;padding:14px;display:flex;flex-direction:column;position:relative;opacity:0;transform:translateY(30px);transition:opacity .6s,transform .6s cubic-bezier(.2,.8,.2,1),box-shadow .3s,border-color .3s;box-shadow:0 8px 30px rgba(0,0,0,0.4);border:1px solid var(--card-border);overflow:hidden}
 .card.in{opacity:1;transform:none}
-.card:hover{box-shadow:0 16px 32px rgba(0,0,0,.25);z-index:2}
-.card .pic{aspect-ratio:1;overflow:hidden;border-radius:6px;background:#f3f3f3;position:relative;cursor:pointer}
-.card .pic img{width:100%;height:100%;object-fit:contain;transition:transform .6s;background:#fff}
+.card:hover{box-shadow:0 16px 40px var(--glow);border-color:var(--brass);transform:translateY(-5px);z-index:2}
+.card .pic{aspect-ratio:1;overflow:hidden;border-radius:8px;background:#111;position:relative;cursor:pointer;border:1px solid var(--card-border)}
+.card .pic img{width:100%;height:100%;object-fit:contain;transition:transform .6s;background:#0f1117}
 .card:hover .pic img{transform:scale(1.12) rotate(1deg)}
-.card .pic::after{content:"";position:absolute;top:0;left:-80%;width:50%;height:100%;background:linear-gradient(120deg,transparent,rgba(255,255,255,.7),transparent);transform:skewX(-20deg);transition:none}
-.card:hover .pic::after{left:130%;transition:left .8s}
-.skel{background:linear-gradient(90deg,#eee 25%,#f8f8f8 50%,#eee 75%);background-size:200% 100%;animation:sk 1.2s infinite}
-@keyframes sk{to{background-position:-200% 0}}
-.tag{position:absolute;top:8px;left:8px;background:#cc0c39;color:#fff;font-size:12px;font-weight:700;padding:3px 8px;border-radius:3px;z-index:2}
-.heart{position:absolute;top:8px;right:8px;z-index:2;background:rgba(255,255,255,.9);border-radius:50%;width:34px;height:34px;font-size:16px;color:#999;transition:.2s;box-shadow:0 2px 6px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center}
-.heart:hover{transform:scale(1.2)}
-.heart.on{color:#e0245e;animation:heartpop .5s}
-@keyframes heartpop{0%{transform:scale(1)}30%{transform:scale(1.6)}60%{transform:scale(.9)}100%{transform:scale(1)}}
-.card h3{font-size:15px;font-weight:500;margin:10px 0 4px;line-height:1.3;cursor:pointer;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.card h3:hover{color:#c7511f}
-.stars{display:flex;align-items:center;gap:4px;font-size:13px;color:var(--link)}
-.starbox{position:relative;display:inline-block;font-size:16px;letter-spacing:1px;color:#ddd;line-height:1}
-.starbox i{position:absolute;left:0;top:0;overflow:hidden;white-space:nowrap;color:#ffa41c;font-style:normal;width:0;transition:width 1.2s ease .3s}
-.price{font-size:22px;margin:4px 0}
-.price sup{font-size:12px}
-.old{font-size:13px;color:var(--muted);text-decoration:line-through;margin-left:6px}
-.prime{color:#00a8e1;font-weight:800;font-size:12px;font-style:italic}
-.stock{font-size:12px;color:var(--green);margin-bottom:8px}
+.card .pic::after{content:"";position:absolute;top:0;left:-100%;width:50%;height:100%;background:linear-gradient(120deg,transparent,rgba(255,255,255,0.15),transparent);transform:skewX(-20deg);transition:none}
+.card:hover .pic::after{left:130%;transition:left .8s ease-in-out}
+.tag{position:absolute;top:10px;left:10px;background:linear-gradient(135deg,var(--ember),var(--copper));color:#fff;font-size:11px;font-weight:800;padding:4px 10px;border-radius:6px;z-index:2;box-shadow:0 4px 15px rgba(255,61,0,0.4);border:1px solid rgba(255,255,255,0.2);letter-spacing:.5px}
+.heart{position:absolute;top:10px;right:10px;z-index:2;background:rgba(24,28,37,0.8);backdrop-filter:blur(4px);border-radius:50%;width:36px;height:36px;font-size:16px;color:var(--muted);transition:.3s;box-shadow:0 4px 15px rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;border:1px solid var(--card-border)}
+.heart:hover{transform:scale(1.2);color:var(--ember);border-color:var(--ember)}
+.heart.on{color:var(--ember);border-color:var(--ember);background:rgba(239,68,68,0.15);animation:heartpop .5s}
+@keyframes heartpop{0%{transform:scale(1)}30%{transform:scale(1.5)}60%{transform:scale(.9)}100%{transform:scale(1)}}
+.card h3{font-size:14px;font-weight:600;margin:12px 0 6px;line-height:1.4;cursor:pointer;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:var(--text);transition:color .2s}
+.card h3:hover{color:var(--brass)}
+.stars{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--brass)}
+.starbox{position:relative;display:inline-block;font-size:15px;letter-spacing:1px;color:#333;line-height:1}
+.starbox i{position:absolute;left:0;top:0;overflow:hidden;white-space:nowrap;color:var(--brass);font-style:normal;width:0;transition:width 1.2s ease .3s}
+.price{font-size:22px;margin:8px 0;font-weight:800;color:#fff}
+.price sup{font-size:12px;color:var(--brass)}
+.old{font-size:12px;color:var(--muted);text-decoration:line-through;margin-left:6px;font-weight:normal}
+.prime{color:var(--copper);font-weight:700;font-size:11px;font-style:italic;letter-spacing:.5px}
+.stock{font-size:11px;color:var(--green);margin-bottom:12px;font-weight:600}
 .stock.low{color:var(--red)}
-.add{margin-top:auto;background:var(--yellow);border-radius:20px;padding:9px;font-size:14px;font-weight:600;position:relative;overflow:hidden;transition:background .2s,transform .15s}
-.add:hover{background:var(--yellow2)}
-.add:active{transform:scale(.94)}
-.add:disabled{background:#ddd;cursor:not-allowed}
-.ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.7);transform:scale(0);animation:rip .6s linear;pointer-events:none}
+.add{margin-top:auto;background:linear-gradient(135deg,var(--copper),var(--brass));color:#000;border-radius:24px;padding:10px;font-size:13px;font-weight:800;position:relative;overflow:hidden;transition:all .3s;box-shadow:0 4px 15px rgba(255,123,0,0.3);letter-spacing:.5px;text-transform:uppercase}
+.add:hover{filter:brightness(1.15);transform:translateY(-2px);box-shadow:0 6px 20px var(--glow)}
+.add:active{transform:scale(.96)}
+.add:disabled{background:var(--steel);color:var(--muted);box-shadow:none;cursor:not-allowed}
+.ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.5);transform:scale(0);animation:rip .6s linear;pointer-events:none}
 @keyframes rip{to{transform:scale(4);opacity:0}}
-.empty{text-align:center;padding:60px 20px;background:#fff;border-radius:8px;grid-column:1/-1}
-.empty div{font-size:48px;margin-bottom:10px}
+.empty{text-align:center;padding:60px 20px;background:var(--card);backdrop-filter:blur(10px);border-radius:12px;grid-column:1/-1;border:1px solid var(--card-border);box-shadow:0 8px 30px rgba(0,0,0,0.4)}
+.empty div{font-size:22px;color:var(--muted);margin-bottom:10px;font-weight:bold}
 
 /* Features */
-.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:24px}
-.features div{background:#fff;padding:18px;border-radius:8px;text-align:center;transition:.3s}
-.features div:hover{transform:translateY(-6px);box-shadow:0 10px 20px rgba(0,0,0,.15)}
-.features b{display:block;margin-top:6px;font-size:15px}
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-top:35px}
+.features div{background:var(--card);backdrop-filter:blur(10px);padding:20px;border-radius:12px;text-align:center;transition:all .3s;box-shadow:0 8px 30px rgba(0,0,0,0.4);border:1px solid var(--card-border)}
+.features div:hover{transform:translateY(-5px);border-color:var(--brass);box-shadow:0 12px 35px var(--glow)}
+.features b{color:var(--brass);font-size:15px;letter-spacing:.5px}
 
-footer{background:var(--navy2);color:#ddd;margin-top:30px}
-footer .back{display:block;width:100%;background:#37475a;color:#fff;padding:14px;font-size:14px}
-footer .back:hover{background:#485769}
-footer .cols{display:flex;flex-wrap:wrap;gap:40px;justify-content:center;padding:36px 20px;font-size:14px}
+footer{background:rgba(15,17,23,0.95);backdrop-filter:blur(10px);color:var(--muted);margin-top:50px;border-top:1px solid var(--card-border);box-shadow:0 -10px 40px rgba(0,0,0,0.8)}
+footer .back{display:block;width:100%;background:var(--steel);color:var(--brass);padding:14px;font-size:13px;font-weight:700;border-bottom:1px solid var(--card-border);letter-spacing:1px;text-transform:uppercase;transition:all .2s}
+footer .back:hover{background:var(--steel-light);color:#fff}
+footer .cols{display:flex;flex-wrap:wrap;gap:40px;justify-content:center;padding:40px 20px;font-size:13px}
 footer .cols div{min-width:150px}
-footer h4{color:#fff;margin-bottom:8px}
-footer p{margin:5px 0;color:#ccc;cursor:pointer}
-footer p:hover{text-decoration:underline}
-footer .copy{background:var(--navy);text-align:center;padding:16px;font-size:13px}
+footer h4{color:var(--brass);margin-bottom:10px;font-size:15px;letter-spacing:1px}
+footer p{margin:6px 0;color:var(--muted);cursor:pointer;transition:color .2s}
+footer p:hover{color:#fff;text-decoration:underline}
+footer .copy{background:#07080a;text-align:center;padding:16px;font-size:12px;color:#666}
 
-/* Overlay / Modal */
-.ov{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;display:none;align-items:center;justify-content:center;padding:14px;backdrop-filter:blur(3px)}
-.ov.show{display:flex;animation:fade .3s}
+/* Overlay / Modal mit Glas-Effekt */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:500;display:none;align-items:center;justify-content:center;padding:14px;backdrop-filter:blur(6px);animation:fade .3s}
+.ov.show{display:flex}
 @keyframes fade{from{opacity:0}}
-.modal{background:#fff;border-radius:10px;width:100%;max-width:900px;max-height:92vh;overflow:auto;position:relative;animation:pop .45s cubic-bezier(.2,1.2,.3,1)}
+.modal{background:var(--steel);backdrop-filter:blur(16px);border:1px solid var(--card-border);border-radius:16px;width:100%;max-width:900px;max-height:92vh;overflow:auto;position:relative;animation:pop .45s cubic-bezier(.2,1.2,.3,1);box-shadow:0 25px 60px rgba(0,0,0,0.9)}
 @keyframes pop{from{transform:scale(.6) translateY(40px);opacity:0}}
-.modal.sm{max-width:400px;padding:26px}
-.x{position:absolute;top:10px;right:12px;background:#eee;width:34px;height:34px;border-radius:50%;font-size:18px;z-index:5;transition:.3s;display:flex;align-items:center;justify-content:center}
-.x:hover{transform:rotate(180deg);background:#ddd}
-.detail{display:grid;grid-template-columns:1fr 1fr;gap:24px;padding:26px}
-.detail .main-img{aspect-ratio:1;border-radius:8px;overflow:hidden;background:#f6f6f6}
+.modal.sm{max-width:400px;padding:30px}
+.x{position:absolute;top:14px;right:14px;background:rgba(255,255,255,0.06);color:var(--text);border:1px solid var(--card-border);width:36px;height:36px;border-radius:50%;font-size:16px;z-index:5;transition:.3s;display:flex;align-items:center;justify-content:center;font-weight:bold}
+.x:hover{transform:rotate(180deg);background:var(--ember);color:#fff;border-color:var(--ember)}
+.detail{display:grid;grid-template-columns:1fr 1fr;gap:28px;padding:30px}
+.detail .main-img{aspect-ratio:1;border-radius:10px;overflow:hidden;background:#111;border:1px solid var(--card-border)}
 .detail .main-img img{width:100%;height:100%;object-fit:contain;transition:transform .4s;cursor:zoom-in}
-.detail .main-img img:hover{transform:scale(1.6)}
-.thumbs{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
-.thumbs img{width:60px;height:60px;object-fit:cover;border:2px solid #ddd;border-radius:6px;cursor:pointer;transition:.2s}
-.thumbs img:hover{transform:translateY(-4px)}
-.thumbs img.on{border-color:var(--orange)}
-.detail h2{font-size:24px;margin-bottom:8px}
-.detail .price{font-size:30px;color:var(--red)}
-.qty{display:flex;align-items:center;gap:8px;margin:12px 0}
-.qty button{width:30px;height:30px;border-radius:50%;background:#eee;font-size:16px;font-weight:600}
-.qty button:hover{background:var(--yellow)}
-.btn{background:var(--yellow);padding:11px 22px;border-radius:22px;font-size:15px;font-weight:600;transition:.2s;position:relative;overflow:hidden}
-.btn:hover{background:var(--yellow2);transform:translateY(-2px)}
-.btn.o{background:#ffa41c}
-.btn.dark{background:var(--navy2);color:#fff}
-.btn.red{background:#cc0c39;color:#fff}
-.btn.sm2{padding:6px 12px;font-size:13px}
+.detail .main-img img:hover{transform:scale(1.5)}
+.thumbs{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.thumbs img{width:60px;height:60px;object-fit:cover;border:1px solid var(--card-border);border-radius:6px;cursor:pointer;transition:.2s}
+.thumbs img:hover{border-color:var(--brass);transform:translateY(-2px)}
+.thumbs img.on{border-color:var(--brass);box-shadow:0 0 10px var(--glow)}
+.detail h2{font-size:24px;margin-bottom:8px;color:#fff;letter-spacing:.5px}
+.detail .price{font-size:30px;color:#fff;font-weight:900}
+.qty{display:flex;align-items:center;gap:12px;margin:16px 0}
+.qty button{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.06);color:var(--text);border:1px solid var(--card-border);font-size:16px;font-weight:bold;transition:.2s}
+.qty button:hover{background:var(--brass);color:#000}
+.btn{background:linear-gradient(135deg,var(--copper),var(--brass));color:#000;padding:12px 24px;border-radius:24px;font-size:15px;font-weight:800;transition:.3s;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(255,123,0,0.3);letter-spacing:.5px;text-transform:uppercase}
+.btn:hover{filter:brightness(1.15);transform:translateY(-2px);box-shadow:0 6px 25px var(--glow)}
+.btn.o{background:linear-gradient(135deg,var(--ember),var(--copper));color:#fff}
+.btn.dark{background:var(--steel-light);color:var(--brass);border:1px solid var(--card-border)}
+.btn.red{background:var(--red);color:#fff}
+.btn.sm2{padding:8px 14px;font-size:12px}
 
 /* Cart drawer */
-.drawer{position:fixed;top:0;right:0;height:100%;width:min(420px,100%);background:#fff;z-index:600;transform:translateX(105%);transition:transform .5s cubic-bezier(.2,.9,.2,1);display:flex;flex-direction:column;box-shadow:-10px 0 30px rgba(0,0,0,.3)}
+.drawer{position:fixed;top:0;right:0;height:100%;width:min(420px,100%);background:var(--steel);backdrop-filter:blur(16px);border-left:1px solid var(--card-border);z-index:600;transform:translateX(105%);transition:transform .5s cubic-bezier(.2,.9,.2,1);display:flex;flex-direction:column;box-shadow:-20px 0 50px rgba(0,0,0,0.9)}
 .drawer.show{transform:none}
-.drawer h2{padding:16px;background:var(--navy2);color:#fff}
-.dbody{flex:1;overflow:auto;padding:12px}
-.ci{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid #eee;animation:slideIn .4s both}
+.drawer h2{padding:20px;background:var(--iron);color:var(--brass);border-bottom:1px solid var(--card-border);display:flex;justify-content:space-between;align-items:center;font-size:18px;letter-spacing:1px}
+.drawer h2 .x{position:static}
+.dbody{flex:1;overflow:auto;padding:16px}
+.ci{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--card-border);animation:slideIn .4s both}
 @keyframes slideIn{from{opacity:0;transform:translateX(40px)}}
-.ci img{width:70px;height:70px;object-fit:contain;border-radius:6px;background:#f6f6f6}
-.ci .info{flex:1;font-size:14px}
+.ci img{width:70px;height:70px;object-fit:contain;border-radius:8px;background:#111;border:1px solid var(--card-border)}
+.ci .info{flex:1;font-size:13px}
 .ci.out{animation:slideOut .35s forwards}
 @keyframes slideOut{to{opacity:0;transform:translateX(100px);height:0;padding:0}}
-.dfoot{padding:16px;border-top:1px solid #ddd;background:#f7f7f7}
-.dfoot .tot{font-size:18px;margin-bottom:10px}
+.dfoot{padding:20px;border-top:1px solid var(--card-border);background:var(--iron)}
+.dfoot .tot{font-size:18px;margin-bottom:12px;font-weight:800;color:#fff}
 
 /* Toast */
 #toasts{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:900;display:flex;flex-direction:column;gap:8px;align-items:center}
-.toast{background:var(--navy);color:#fff;padding:12px 20px;border-radius:30px;box-shadow:0 6px 20px rgba(0,0,0,.4);animation:toast .5s cubic-bezier(.2,1.4,.3,1),toastout .4s 2.6s forwards}
+.toast{background:var(--iron);color:var(--brass);border:1px solid var(--brass);padding:12px 24px;border-radius:30px;box-shadow:0 8px 25px rgba(0,0,0,0.8);animation:toast .5s cubic-bezier(.2,1.4,.3,1),toastout .4s 2.6s forwards;font-weight:700;letter-spacing:.5px}
 @keyframes toast{from{transform:translateY(60px) scale(.7);opacity:0}}
 @keyframes toastout{to{transform:translateY(20px);opacity:0}}
-#toTop{position:fixed;right:18px;bottom:18px;width:46px;height:46px;border-radius:50%;background:var(--orange);font-size:20px;font-weight:bold;z-index:200;transform:scale(0);transition:.3s;box-shadow:0 4px 12px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center}
+#toTop{position:fixed;right:20px;bottom:20px;width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--copper),var(--brass));color:#000;border:1px solid var(--card-border);font-size:20px;z-index:200;transform:scale(0);transition:.3s;box-shadow:0 6px 20px rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;font-weight:bold}
 #toTop.show{transform:scale(1)}
-#toTop:hover{transform:scale(1.15) translateY(-3px)}
+#toTop:hover{transform:scale(1.15) translateY(-3px);box-shadow:0 8px 25px var(--glow)}
 
 /* Admin */
-.tabs{display:flex;border-bottom:2px solid #eee;padding:0 20px;gap:4px;margin-top:20px}
-.tabs button{background:none;padding:10px 16px;font-size:15px;border-bottom:3px solid transparent;margin-bottom:-2px;transition:.2s}
-.tabs button.on{border-color:var(--orange);font-weight:700}
-.apane{padding:20px;display:none}
+.tabs{display:flex;border-bottom:1px solid var(--card-border);padding:0 20px;gap:6px;margin-top:20px;background:var(--iron)}
+.tabs button{background:none;padding:12px 18px;font-size:14px;border-bottom:3px solid transparent;margin-bottom:-1px;transition:.2s;font-weight:600;color:var(--muted)}
+.tabs button.on{border-color:var(--brass);font-weight:800;color:var(--brass)}
+.apane{padding:24px;display:none}
 .apane.on{display:block;animation:fadeUp .4s}
-.f{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
-.f label{font-size:13px;font-weight:700}
-.f input,.f select,.f textarea{padding:9px;border:1px solid #a6a6a6;border-radius:4px;transition:.2s;width:100%}
-.f input:focus,.f select:focus,.f textarea:focus{outline:none;border-color:#e77600;box-shadow:0 0 0 3px rgba(228,121,17,.3)}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-.prev{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-.prev img{width:70px;height:70px;object-fit:cover;border-radius:6px;border:1px solid #ddd;animation:pop .3s}
-table{width:100%;border-collapse:collapse;font-size:14px}
-td,th{padding:8px;border-bottom:1px solid #eee;text-align:left}
+.f{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.f label{font-size:12px;font-weight:700;color:var(--brass);letter-spacing:.5px}
+.f input,.f select,.f textarea{padding:10px;border:1px solid var(--card-border);border-radius:8px;background:var(--steel);color:var(--text);transition:.2s;width:100%}
+.f input:focus,.f select:focus,.f textarea:focus{outline:none;border-color:var(--brass);box-shadow:0 0 0 3px rgba(243,186,47,0.2)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.prev{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.prev img{width:70px;height:70px;object-fit:cover;border-radius:6px;border:1px solid var(--card-border);animation:pop .3s}
+table{width:100%;border-collapse:collapse;font-size:13px}
+td,th{padding:10px;border-bottom:1px solid var(--card-border);text-align:left}
+th{color:var(--brass);font-weight:700}
 tr{animation:fadeUp .4s both}
-td img{width:46px;height:46px;object-fit:cover;border-radius:5px}
+td img{width:46px;height:46px;object-fit:cover;border-radius:6px;border:1px solid var(--card-border)}
 .shake{animation:shake .5s}
 @keyframes shake{20%,60%{transform:translateX(-10px)}40%,80%{transform:translateX(10px)}}
-.note{background:#fff8e1;border-left:4px solid var(--orange);padding:10px;font-size:13px;margin-bottom:12px;border-radius:4px}
-.adminbar{background:#cc0c39;color:#fff;text-align:center;font-size:13px;padding:5px;display:none;font-weight:600}
-.adminbar.on{display:block;animation:slideDown .5s}
+.note{background:rgba(239,68,68,0.1);border-left:4px solid var(--ember);padding:12px;font-size:12px;margin-bottom:14px;border-radius:0 8px 8px 0;color:#fca5a5}
+.adminbar{background:linear-gradient(135deg,var(--ember),var(--copper));color:#fff;text-align:center;font-size:12px;font-weight:700;padding:6px;display:none;letter-spacing:1px;border-bottom:1px solid var(--card-border)}
+.adminbar.on{display:block}
 .confetti{position:fixed;top:-20px;width:10px;height:16px;z-index:999;pointer-events:none}
 .tabs{overflow-x:auto;scrollbar-width:none}.tabs button{white-space:nowrap}
 
-/* Shop Picker Modal */
-#shopSelectorOv{background:rgba(19,25,33,0.85);backdrop-filter:blur(6px)}
-.shop-picker-card{background:#fff;border-radius:12px;padding:30px;max-width:500px;width:90%;text-align:center;box-shadow:0 20px 40px rgba(0,0,0,0.4)}
-.shop-picker-card h2{font-size:26px;margin-bottom:10px;color:var(--navy)}
-.shop-picker-card p{color:var(--muted);margin-bottom:24px;font-size:15px}
-.shop-picker-options{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.shop-option-btn{background:var(--bg);border:2px solid #d5d9d9;border-radius:8px;padding:24px 16px;cursor:pointer;transition:.2s;font-size:16px;font-weight:700;color:var(--navy)}
-.shop-option-btn:hover{border-color:var(--orange);background:#fff;transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,0.1)}
-
 /* Bestellungen & Kasse */
-.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
-.chip{background:#f0f2f2;border-radius:20px;padding:7px 14px;font-size:14px;transition:.2s;cursor:pointer}
-.chip:hover{background:#e3e6e6;transform:translateY(-2px)}
-.chip.on{background:var(--navy2);color:#fff}
-.chip b{margin-left:6px;background:var(--orange);color:#111;border-radius:10px;padding:0 7px;font-size:12px}
-.ord{border:1px solid #ddd;border-radius:10px;margin-bottom:14px;overflow:hidden;animation:fadeUp .5s both;transition:box-shadow .3s,transform .3s}
-.ord:hover{box-shadow:0 8px 20px rgba(0,0,0,.12);transform:translateY(-2px)}
-.ordh{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;background:#f0f2f2;padding:10px 14px;font-size:13px}
-.ordh b{font-size:15px}
-.st{padding:3px 10px;border-radius:12px;font-size:12px;font-weight:700;color:#fff}
-.st.open{background:#e47911;animation:tagpulse 2s infinite}.st.shipped{background:#067d62}.st.cancelled{background:#cc0c39}
-@keyframes tagpulse{0%,100%{box-shadow:0 0 0 0 rgba(204,12,57,.6)}50%{box-shadow:0 0 0 8px rgba(204,12,57,0)}}
-.ordb{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:14px}
-.ordb h4{font-size:12px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
-.oi{display:flex;gap:8px;align-items:center;margin-bottom:6px;font-size:13px}
-.oi img{width:38px;height:38px;object-fit:cover;border-radius:5px}
-.orda{display:flex;gap:8px;flex-wrap:wrap;padding:0 14px 14px}
-.chk{display:grid;grid-template-columns:1.2fr 1fr;gap:24px;padding:26px}
-.sum{background:#f7f7f7;border-radius:8px;padding:12px;font-size:14px}
-.sum div{display:flex;justify-content:space-between;gap:10px;padding:3px 0}
-.okc{width:90px;height:90px;border-radius:50%;background:var(--green);color:#fff;font-size:40px;font-weight:bold;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;animation:pop .7s cubic-bezier(.2,1.5,.3,1)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.chip{background:var(--steel);border:1px solid var(--card-border);border-radius:20px;padding:8px 16px;font-size:13px;transition:.2s;font-weight:600;color:var(--muted)}
+.chip:hover{background:var(--steel-light);color:var(--text)}
+.chip.on{background:var(--brass);color:#000;border-color:var(--brass);font-weight:800;box-shadow:0 0 15px var(--glow)}
+.chip b{margin-left:6px;background:var(--iron);color:var(--brass);border-radius:10px;padding:0 6px;font-size:11px;border:1px solid var(--card-border)}
+.ord{border:1px solid var(--card-border);border-radius:10px;margin-bottom:16px;overflow:hidden;animation:fadeUp .5s both;transition:box-shadow .3s,transform .3s;background:var(--card)}
+.ord:hover{box-shadow:0 10px 30px rgba(0,0,0,0.8);border-color:var(--brass)}
+.ordh{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;background:var(--iron);padding:12px 16px;font-size:12px;border-bottom:1px solid var(--card-border)}
+.ordh b{font-size:14px;color:var(--brass)}
+.st{padding:4px 12px;border-radius:12px;font-size:11px;font-weight:700;color:#fff}
+.st.open{background:var(--copper)}.st.shipped{background:var(--green)}.st.cancelled{background:var(--red)}
+.ordb{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:16px}
+.ordb h4{font-size:11px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;font-weight:700}
+.oi{display:flex;gap:8px;align-items:center;margin-bottom:8px;font-size:12px}
+.oi img{width:40px;height:40px;object-fit:cover;border-radius:6px;border:1px solid var(--card-border)}
+.orda{display:flex;gap:8px;flex-wrap:wrap;padding:0 16px 16px}
+.chk{display:grid;grid-template-columns:1.2fr 1fr;gap:28px;padding:30px}
+.sum{background:var(--iron);border-radius:10px;padding:14px;font-size:13px;border:1px solid var(--card-border)}
+.sum div{display:flex;justify-content:space-between;gap:10px;padding:4px 0}
+.okc{width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,var(--green),#047857);color:#fff;font-size:24px;font-weight:bold;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;box-shadow:0 0 30px rgba(16,185,129,0.5);border:2px solid var(--brass)}
 
 @media(max-width:760px){
  .detail{grid-template-columns:1fr}.top{flex-wrap:wrap}.search{order:5;flex-basis:100%}
- .hero{height:300px}.row2,.row3{grid-template-columns:1fr}.hbtn span.t{display:none}.ordb,.chk{grid-template-columns:1fr}
- .shop-picker-options{grid-template-columns:1fr}
+ .row2,.row3{grid-template-columns:1fr}.hbtn span.t{display:none}.ordb,.chk{grid-template-columns:1fr}
 }
 </style>
 </head>
 <body>
 
+<div class="embers" id="embers"></div>
 <div id="loader"><div class="logo">MEJT<span>.</span></div><div class="bar"><i></i></div></div>
 
-<!-- Shop Auswahl Modal beim Start / Wechsel -->
-<div class="ov" id="shopSelectorOv" style="display:none">
-  <div class="shop-picker-card">
-    <h2>Shop auswählen</h2>
-    <p>Bitte wähle, welchen Shop du besuchen möchtest:</p>
-    <div class="shop-picker-options">
-      <button class="shop-option-btn" id="chooseMinecraft">Minecraft-Shop<br><small style="font-weight:400;font-size:13px;color:var(--muted)">Ingeame Ränge &amp; Items</small></button>
-      <button class="shop-option-btn" id="chooseMejt">MEJT-Shop (IRL)<br><small style="font-weight:400;font-size:13px;color:var(--muted)">Elektronik, Mode &amp; mehr</small></button>
-    </div>
-  </div>
-</div>
-
-<div class="adminbar" id="adminbar">Admin-Modus aktiv – du kannst Produkte und Werbebanner verwalten</div>
-<div class="ticker"><div id="tickerText">Kostenloser Versand ab 29 EUR &nbsp;|&nbsp; Blitzangebote täglich &nbsp;|&nbsp; Neukunden-Rabatt mit Code MEJT10 &nbsp;|&nbsp; Sicher bezahlen</div></div>
+<div class="adminbar" id="adminbar">Admin-Modus aktiv – Schmiede &amp; Inventar verwalten</div>
+<div class="ticker" id="topTicker"><div id="tickerText">Eiserne Lieferung ab 29 Taler - Taegliche Gilden-Sonderangebote - Neukunden: Rabatt mit Code MEJT10 - Sichere Bezahlung - Ueber 10 zufriedene Buerger</div></div>
 
 <header>
   <div class="top">
-    <div class="brand" id="logo">MEJT<small id="brandSub"> Shop</small></div>
-    <button class="shop-switch" id="switchShopBtn">Shop wechseln</button>
+    <div class="brand" id="logo">MEJT<small>Forge &amp; Market</small></div>
     <form class="search" id="searchForm">
-      <select id="searchCat"><option value="all">Alle</option></select>
-      <input id="q" placeholder="Shop durchsuchen" autocomplete="off">
-      <button type="submit">Suchen</button>
+      <select id="searchCat"><option value="all">Alle Gilden</option></select>
+      <input id="q" placeholder="Durchsuche das Inventar..." autocomplete="off">
+      <button type="submit">Suche</button>
     </form>
-    <button class="hbtn" id="accBtn"><span class="t">Hallo,</span><b id="accLabel">Anmelden</b></button>
-    <button class="hbtn" id="wishBtn"><span class="t">Merkzettel</span><b>Merkzettel (<span id="wishCount">0</span>)</b></button>
-    <button class="hbtn adminOnly" id="ordBtn" style="display:none"><span class="t">Admin</span><b>Bestellungen (<span id="ordCount">0</span>)</b></button>
-    <button class="hbtn cartbtn" id="cartBtn"><span>Warenkorb</span><span class="badge" id="cartCount">0</span></button>
+    <button class="hbtn" id="accBtn"><span class="t">Gilde,</span><b id="accLabel">Anmelden</b></button>
+    <button class="hbtn" id="wishBtn"><span class="t">Notiz</span><b>Merkzettel (<span id="wishCount">0</span>)</b></button>
+    <button class="hbtn adminOnly" id="ordBtn" style="display:none"><span class="t">Schmiede</span><b>Aufträge (<span id="ordCount">0</span>)</b></button>
+    <button class="hbtn cartbtn" id="cartBtn"><span class="badge" id="cartCount">0</span><b class="t">Sack</b></button>
   </div>
   <nav id="nav"></nav>
 </header>
 
-<section class="hero" id="hero">
-  <div class="bubbles" id="bubbles"></div>
-  <div class="slide on" style="background:linear-gradient(120deg,#232f3e,#37475a 60%,#ff9900)"><h2 id="heroTitle1">Willkommen im MEJT Shop</h2><p id="heroDesc1">Entdecke Top-Produkte zu fairen Preisen – schnell, sicher und einfach.</p><button class="cta" data-go="all">Jetzt stöbern</button></div>
-  <div class="slide" style="background:linear-gradient(120deg,#0f2027,#2c5364 70%,#00c6ff)"><h2 id="heroTitle2">Highlights &amp; Angebote</h2><p id="heroDesc2">Top-Artikel und Spezialangebote – bis zu 40% reduziert.</p><button class="cta" data-go="deals">Zu den Deals</button></div>
-  <button class="arrow l" id="prev">&#8249;</button><button class="arrow r" id="next">&#8250;</button>
-  <div class="dots" id="dots"></div>
-</section>
-
 <main>
   <div class="cats" id="catCards"></div>
-  <div class="deal" id="dealBar"><b>Blitzangebote</b><span>endet in</span><div class="timer"><span id="th">00</span><span id="tm">00</span><span id="ts">00</span></div></div>
-  <div class="bar2"><h2 id="listTitle">Alle Produkte</h2>
-    <div><label style="font-size:13px">Sortieren: </label>
-    <select id="sort"><option value="feat">Empfohlen</option><option value="pa">Preis aufsteigend</option><option value="pd">Preis absteigend</option><option value="rt">Beste Bewertung</option><option value="new">Neueste</option></select></div>
+  <div class="deal" id="dealBar"><b>Gilden-Auktion</b><span>endet in</span><div class="timer"><span id="th">00</span><span id="tm">00</span><span id="ts">00</span></div></div>
+  <div class="bar2"><h2 id="listTitle">Das gesamte Inventar</h2>
+    <div><label style="font-size:12px;font-weight:600;color:var(--muted)">Sortieren: </label>
+    <select id="sort"><option value="feat">Empfohlen</option><option value="pa">Preis aufsteigend</option><option value="pd">Preis absteigend</option><option value="rt">Beste Qualität</option><option value="new">Frisch geschmiedet</option></select></div>
   </div>
   <div class="grid" id="grid"></div>
   <div class="features">
-    <div><b>Schneller Versand</b><p style="font-size:13px;color:var(--muted)">In 1–3 Tagen bei dir</p></div>
-    <div><b>Sicher bezahlen</b><p style="font-size:13px;color:var(--muted)">Geschützte Zahlung</p></div>
-    <div><b>Rückgabe</b><p style="font-size:13px;color:var(--muted)">Kostenlos &amp; einfach</p></div>
-    <div><b>Top Support</b><p style="font-size:13px;color:var(--muted)">Wir sind für dich da</p></div>
+    <div><b>Schneller Kurier</b><p style="font-size:12px;color:var(--muted)">In 1–3 Tagen per Postkutsche</p></div>
+    <div><b>Sichere Münzen</b><p style="font-size:12px;color:var(--muted)">Geschützter Handel</p></div>
+    <div><b>Ewiges Rückgaberecht</b><p style="font-size:12px;color:var(--muted)">Ohne Fragen &amp; Streit</p></div>
+    <div><b>Gilden-Support</b><p style="font-size:12px;color:var(--muted)">Wir stehen dir bei</p></div>
   </div>
 </main>
 
 <footer>
   <button class="back" id="backTop">Zurück nach oben</button>
   <div class="cols">
-    <div><h4>MEJT Shop</h4><p>Über uns</p><p>Karriere</p><p>Presse</p></div>
-    <div><h4>Hilfe</h4><p>Versand</p><p>Rückgabe</p><p>Kontakt</p></div>
-    <div><h4>Rechtliches</h4><p>AGB</p><p>Datenschutz</p><p>Impressum</p></div>
+    <div><h4>MEJT Forge</h4><p>Chroniken</p><p>Karriere</p><p>Botenamt</p></div>
+    <div><h4>Beistand</h4><p>Lieferwege</p><p>Rückgabe</p><p>Kontakt</p></div>
+    <div><h4>Gesetze</h4><p>Gilden-AGB</p><p>Geheimhaltung</p><p>Impressum</p></div>
   </div>
-  <div class="copy">&copy; <span id="yr"></span> MEJT Shop – Alle Rechte vorbehalten</div>
+  <div class="copy">&copy; <span id="yr"></span> MEJT Forge &amp; Market – Alle Rechte vorbehalten</div>
 </footer>
 
-<button id="toTop">&#8593;</button>
+<button id="toTop">^</button>
 <div id="toasts"></div>
+
+<!-- Willkommens-Popup -->
+<div class="ov show" id="welcomeOv" style="display:none">
+  <div class="modal sm" style="text-align:center">
+    <button class="x" data-close="welcomeOv">X</button>
+    <h2 id="popupTitle" style="margin-bottom:10px;color:var(--brass)">Willkommen in der Schmiede!</h2>
+    <p id="popupText" style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:20px">Schön, dass du den Weg hierher gefunden hast. Entdecke unsere geschmiedeten Waren.</p>
+    <button class="btn o" style="width:100%" data-close="welcomeOv">Das Tor öffnen!</button>
+  </div>
+</div>
 
 <!-- Produktdetail -->
 <div class="ov" id="detailOv"><div class="modal" id="detailBox"></div></div>
@@ -347,9 +321,9 @@ td img{width:46px;height:46px;object-fit:cover;border-radius:5px}
 <!-- Warenkorb -->
 <div class="ov" id="cartOv" style="justify-content:flex-end;padding:0"></div>
 <aside class="drawer" id="drawer">
-  <h2>Warenkorb <button class="x" id="closeCart" style="top:12px">&#10005;</button></h2>
+  <h2>Dein Handels-Sack <button class="x" id="closeCart">X</button></h2>
   <div class="dbody" id="cartBody"></div>
-  <div class="dfoot"><div class="tot">Summe: <b id="cartTotal">0,00 EUR</b></div><button class="btn o" style="width:100%" id="checkout">Zur Kasse</button></div>
+  <div class="dfoot"><div class="tot">Summe: <b id="cartTotal">0,00 Taler</b></div><button class="btn o" style="width:100%" id="checkout">Zur Kasse schreiten</button></div>
 </aside>
 
 <!-- Kasse -->
@@ -357,93 +331,81 @@ td img{width:46px;height:46px;object-fit:cover;border-radius:5px}
 
 <!-- Login -->
 <div class="ov" id="loginOv"><div class="modal sm" id="loginBox">
-  <button class="x" data-close="loginOv">&#10005;</button>
-  <h2 id="lTitle" style="margin-bottom:6px">Admin-Anmeldung</h2>
+  <button class="x" data-close="loginOv">X</button>
+  <h2 id="lTitle" style="margin-bottom:6px;color:var(--brass)">Meister-Anmeldung</h2>
   <p id="lMsg" class="note" style="display:none"></p>
-  <p id="loginHint" style="font-size:13px;color:var(--muted);margin-bottom:14px">Standard: <b>admin</b> / <b>admin123</b></p>
+  <p id="loginHint" style="font-size:12px;color:var(--muted);margin-bottom:14px">Standard: <b>admin</b> / <b>admin123</b></p>
   <div class="f" id="lNameBox" style="display:none"><label>Dein Name</label><input id="lName" autocomplete="name" maxlength="60"></div>
-  <div class="f"><label id="lUserLbl">Benutzername</label><input id="lUser" autocomplete="username"></div>
-  <div class="f"><label>Passwort</label><input id="lPass" type="password" autocomplete="current-password"></div>
-  <button class="btn" style="width:100%" id="doLogin">Anmelden</button>
-  <div id="lSwitch" style="display:none;font-size:13px;margin-top:14px;text-align:center"><a href="#" id="lToggle">Neu hier? Konto erstellen</a><br><a href="#" id="lForgot" style="color:var(--muted)">Passwort vergessen?</a></div>
-</div></div>
-
-<!-- Konto (Kunde) -->
-<div class="ov" id="accOv"><div class="modal sm">
-  <button class="x" data-close="accOv">&#10005;</button>
-  <h2 style="margin-bottom:6px">Mein Konto</h2>
-  <p id="accInfo" style="margin-bottom:16px;font-size:14px;line-height:1.5"></p>
-  <button class="btn dark" style="width:100%" id="accLogout">Abmelden</button>
+  <div class="f"><label id="lUserLbl">Meister-Kennung</label><input id="lUser" autocomplete="username"></div>
+  <div class="f"><label>Geheimes Siegel (Passwort)</label><input id="lPass" type="password" autocomplete="current-password"></div>
+  <button class="btn" style="width:100%" id="doLogin">Eintreten</button>
 </div></div>
 
 <!-- Admin Panel -->
 <div class="ov" id="adminOv"><div class="modal">
-  <button class="x" data-close="adminOv">&#10005;</button>
-  <h2 style="padding:20px 20px 0">Admin-Bereich</h2>
-  <div class="tabs"><button class="on" data-tab="aList">Produkte</button><button data-tab="aForm" id="tabForm">Produkt hinzufügen</button><button data-tab="aOrders" id="tabOrders">Bestellungen</button><button data-tab="aSet">Einstellungen</button></div>
+  <button class="x" data-close="adminOv">X</button>
+  <h2 style="padding:20px 20px 0;color:var(--brass)">Schmiede- &amp; Verwaltungsraum</h2>
+  <div class="tabs"><button class="on" data-tab="aList">Warenlager</button><button data-tab="aForm" id="tabForm">Wahre schmieden</button><button data-tab="aOrders" id="tabOrders">Aufträge</button><button data-tab="aBanner">Banner & Aushang</button><button data-tab="aSet">Gilden-Regeln</button></div>
 
-  <div class="apane on" id="aList"><div style="overflow:auto"><table><thead><tr><th></th><th>Name</th><th>Shop</th><th>Kategorie</th><th>Preis</th><th>Lager</th><th></th></tr></thead><tbody id="aRows"></tbody></table></div></div>
+  <div class="apane on" id="aList"><div style="overflow:auto"><table><thead><tr><th></th><th>Name</th><th>Gilde</th><th>Preis</th><th>Lager</th><th></th></tr></thead><tbody id="aRows"></tbody></table></div></div>
 
   <div class="apane" id="aForm">
-    <h3 id="formTitle" style="margin-bottom:10px">Neues Produkt</h3>
+    <h3 id="formTitle" style="margin-bottom:10px;color:var(--brass)">Neue Ware schmieden</h3>
     <input type="hidden" id="pId">
-    <div class="row2">
-      <div class="f"><label>Shop-Zuordnung *</label><select id="pShop"><option value="mejt">MEJT-Shop (IRL)</option><option value="minecraft">Minecraft-Shop</option></select></div>
-      <div class="f"><label>Produktname *</label><input id="pName"></div>
-    </div>
+    <div class="f"><label>Warenbezeichnung *</label><input id="pName"></div>
     <div class="row3">
-      <div class="f"><label>Preis (EUR) *</label><input id="pPrice" type="number" step="0.01" min="0"></div>
+      <div class="f"><label>Wert in Taler (€) *</label><input id="pPrice" type="number" step="0.01" min="0"></div>
       <div class="f"><label>Alter Preis (optional)</label><input id="pOld" type="number" step="0.01" min="0"></div>
       <div class="f"><label>Lagerbestand</label><input id="pStock" type="number" min="0" value="10"></div>
     </div>
     <div class="row3">
-      <div class="f"><label>Kategorie *</label><input id="pCat" list="catList" placeholder="z.B. Elektronik oder Ränge"><datalist id="catList"></datalist></div>
-      <div class="f"><label>Bewertung (0–5)</label><input id="pRating" type="number" step="0.1" min="0" max="5" value="4.5"></div>
-      <div class="f"><label>Anzahl Bewertungen</label><input id="pReviews" type="number" min="0" value="12"></div>
+      <div class="f"><label>Gilde / Kategorie *</label><input id="pCat" list="catList" placeholder="z.B. Eisenwaren"><datalist id="catList"></datalist></div>
+      <div class="f"><label>Güte (0-5)</label><input id="pRating" type="number" step="0.1" min="0" max="5" value="4.5"></div>
+      <div class="f"><label>Anzahl Gutachten</label><input id="pReviews" type="number" min="0" value="12"></div>
     </div>
     <div class="f"><label>Bild-Adressen (URLs) – eine pro Zeile *</label><textarea id="pImgs" rows="4" placeholder="https://beispiel.de/bild1.jpg"></textarea></div>
     <div class="prev" id="pPrev"></div>
-    <div class="f"><label>Beschreibung</label><textarea id="pDesc" rows="3"></textarea></div>
-    <label style="font-size:14px"><input type="checkbox" id="pPrime" checked> Prime-Versand anzeigen</label>
-    <div style="margin-top:14px;display:flex;gap:10px"><button class="btn" id="saveProd">Speichern</button><button class="btn" id="resetForm">Leeren</button></div>
+    <div class="f"><label>Beschreibung der Ware</label><textarea id="pDesc" rows="3"></textarea></div>
+    <label style="font-size:13px"><input type="checkbox" id="pPrime" checked> Gilden-Kurier (Prime) anzeigen</label>
+    <div style="margin-top:14px;display:flex;gap:10px"><button class="btn" id="saveProd">Ins Lager legen</button><button class="btn" id="resetForm">Leeren</button></div>
   </div>
 
   <div class="apane" id="aOrders"><div class="chips" id="ordChips"></div><div id="ordList"></div></div>
 
-  <div class="apane" id="aSet">
-    <div class="note" id="noteCloud" style="display:none"><b>Cloud-Modus aktiv:</b> Änderungen werden live in Firebase gespeichert.</div>
-    <div class="note" id="noteLocal"><b>Hinweis:</b> GitHub Pages ist statisch. Produkte werden im Browser gespeichert. Für globale Sichtbarkeit unten exportieren und als <code>products.json</code> hochladen.</div>
-    
-    <h3 style="margin-bottom:8px">Werbebanner (Ticker) bearbeiten</h3>
-    <div class="f" style="margin-bottom:14px">
-      <label>Lauftext ganz oben</label>
-      <input id="bannerInput" placeholder="Text für das Werbebanner eingeben...">
-      <button class="btn sm2" id="saveBannerBtn" style="margin-top:6px">Banner speichern</button>
+  <div class="apane" id="aBanner">
+    <h3 style="margin-bottom:12px;color:var(--brass)">Aushang &amp; Banner konfigurieren</h3>
+    <div class="f"><label>Marktplatz Banner Text (Ticker)</label><input id="bText"></div>
+    <div class="row2">
+      <div class="f"><label>Banner Hintergrundfarbe</label><input id="bBg" type="color" value="#7c2d12" style="height:40px;padding:2px"></div>
+      <div class="f"><label>Banner Textfarbe</label><input id="bColor" type="color" value="#fde047" style="height:40px;padding:2px"></div>
     </div>
-    <hr style="margin:20px 0;border:none;border-top:1px solid #eee">
+    <hr style="margin:16px 0;border:none;border-top:1px solid var(--card-border)">
+    <div class="f"><label>Willkommens-Titel</label><input id="popTitle"></div>
+    <div class="f"><label>Willkommens-Botschaft</label><textarea id="popDesc" rows="3"></textarea></div>
+    <div style="margin-top:14px"><button class="btn" id="saveBanner">Aushang nageln</button></div>
+  </div>
 
+  <div class="apane" id="aSet">
+    <div class="note"><b>Wichtig:</b> Die Werkzeuge arbeiten im Browser (localStorage). Zum Sichern der Schätze kannst du die Lagerliste exportieren oder importieren.</div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px">
-      <button class="btn dark" id="exportBtn">Exportieren (products.json)</button>
-      <button class="btn dark" id="importBtn">Importieren</button>
+      <button class="btn dark" id="exportBtn">Lager exportieren (json)</button>
+      <button class="btn dark" id="importBtn">Lager importieren</button>
       <input type="file" id="importFile" accept=".json" hidden>
-      <button class="btn red" id="resetAll">Auf Standard zurücksetzen</button>
+      <button class="btn red" id="resetAll">Standard-Waren laden</button>
     </div>
     <div id="credLocal">
-    <h3 style="margin-bottom:8px">Zugangsdaten ändern</h3>
-    <div class="row2"><div class="f"><label>Neuer Benutzername</label><input id="nUser"></div><div class="f"><label>Neues Passwort</label><input id="nPass" type="password"></div></div>
-    <button class="btn" id="saveCred">Speichern</button>
+    <h3 style="margin-bottom:8px;color:var(--brass)">Meister-Zugang ändern</h3>
+    <div class="row2"><div class="f"><label>Neue Kennung</label><input id="nUser"></div><div class="f"><label>Neues Siegel</label><input id="nPass" type="password"></div></div>
+    <button class="btn" id="saveCred">Zugang sichern</button>
     </div>
-    <div id="credCloud" style="display:none">
-    <h3 style="margin-bottom:8px">Passwort ändern</h3>
-    <button class="btn" id="resetPw">Passwort-Reset-E-Mail senden</button>
-    </div>
-    <hr style="margin:20px 0;border:none;border-top:1px solid #eee">
-    <button class="btn red" id="logout">Abmelden</button>
+    <hr style="margin:20px 0;border:none;border-top:1px solid var(--card-border)">
+    <button class="btn red" id="logout">Aus der Schmiede scheiden</button>
   </div>
 </div></div>
 
-<script type="module">
-const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+<script>
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
 
 const firebaseConfig = {
   apiKey: "AIzaSyDtfD97Kz9izndoNi8Es5ryt98Uk4fdB_M",
@@ -455,491 +417,829 @@ const firebaseConfig = {
   measurementId: "G-ZRRJJYE58J"
 };
 
-let CLOUD=!String(firebaseConfig.apiKey).startsWith("DEIN_");
-let db,auth,fs,au;
-if(CLOUD){
-  try{
-    const V="10.12.2",B="https://www.gstatic.com/firebasejs/"+V+"/";
-    const [appM,fsM,auM]=await Promise.all([import(B+"firebase-app.js"),import(B+"firebase-firestore.js"),import(B+"firebase-auth.js")]);
-    const app=appM.initializeApp(firebaseConfig);
-    db=fsM.getFirestore(app);auth=auM.getAuth(app);fs=fsM;au=auM;
-  }catch(e){console.error(e);CLOUD=false}
-}
-const LS={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
-const img=(s)=>`https://picsum.photos/seed/${s}/600/600`;
+let CLOUD = !String(firebaseConfig.apiKey).startsWith("DEIN_");
+let db, auth, fs, au;
 
-const DEFAULTS=[
- /* IRL Shop / Mejtshop */
- {id:1,shop:"mejt",name:"Kabellose Bluetooth Kopfhörer mit Noise Cancelling",price:59.99,old:89.99,cat:"Elektronik",images:[img("headphone1"),img("headphone2")],desc:"Starker Klang, 30 Stunden Akkulaufzeit und aktive Geräuschunterdrückung.",rating:4.6,reviews:1284,stock:25,prime:true,t:1},
- {id:2,shop:"mejt",name:"Smartwatch Fitness-Tracker mit Herzfrequenz",price:39.9,old:69.9,cat:"Elektronik",images:[img("watch1"),img("watch2")],desc:"Schrittzähler, Schlafüberwachung, Wasserdicht IP68.",rating:4.3,reviews:856,stock:8,prime:true,t:2},
- {id:3,shop:"mejt",name:"Edelstahl Trinkflasche 750ml isoliert",price:17.5,old:null,cat:"Haushalt",images:[img("bottle1"),img("bottle2")],desc:"Hält Getränke 24h kalt oder 12h heiß. BPA-frei.",rating:4.8,reviews:432,stock:60,prime:true,t:3},
- {id:4,shop:"mejt",name:"Gaming Maus RGB 7200 DPI",price:24.99,old:34.99,cat:"Gaming",images:[img("mouse1"),img("mouse2")],desc:"Ergonomisches Design mit programmierbaren Tasten und RGB.",rating:4.4,reviews:2210,stock:40,prime:false,t:4},
- {id:5,shop:"mejt",name:"Mechanische Tastatur mit Blue Switches",price:49.0,old:64.0,cat:"Gaming",images:[img("keyboard1"),img("keyboard2")],desc:"Taktiles Tippgefühl, RGB-Hintergrundbeleuchtung.",rating:4.5,reviews:975,stock:3,prime:true,t:5},
- {id:6,shop:"mejt",name:"Rucksack wasserdicht 30L mit USB-Port",price:29.95,old:44.95,cat:"Mode",images:[img("backpack1"),img("backpack2")],desc:"Viel Platz, Laptopfach bis 15,6 Zoll und USB-Anschluss.",rating:4.7,reviews:3120,stock:33,prime:true,t:6},
- 
- /* Minecraft Shop */
- {id:101,shop:"minecraft",name:"VIP Rang (30 Tage)",price:9.99,old:14.99,cat:"Ränge",images:[img("mc_vip"),img("mc_vip2")],desc:"Exklusive Befehle, Fly-Modus und farbiger Chat auf dem MEJT Minecraft Server.",rating:4.9,reviews:450,stock:999,prime:false,t:101},
- {id:102,shop:"minecraft",name:"MVP+ Rang (Permanent)",price:34.99,old:49.99,cat:"Ränge",images:[img("mc_mvp"),img("mc_mvp2")],desc:"Alle VIP Features dauerhaft plus exklusive Kits und Partikel.",rating:5.0,reviews:320,stock:999,prime:false,t:102},
- {id:103,shop:"minecraft",name:"10.000 Ingame Emeralds",price:4.99,old:null,cat:"Währung",images:[img("mc_emerald"),img("mc_emerald2")],desc:"Sofortige Gutschrift von 10.000 Emeralds auf dein Ingame-Konto.",rating:4.8,reviews:890,stock:999,prime:false,t:103},
- {id:104,shop:"minecraft",name:"Legendäres Werkzeug-Set",price:7.49,old:9.99,cat:"Items",images:[img("mc_tools"),img("mc_tools2")],desc:"Volles Netherit-Set mit Effizienz V und Haltbarkeit III.",rating:4.7,reviews:150,stock:999,prime:false,t:104}
+const LS = {
+  get(k, d) {
+    try {
+      const v = localStorage.getItem(k);
+      return v ? JSON.parse(v) : d;
+    } catch (e) {
+      return d;
+    }
+  },
+  set(k, v) {
+    try {
+      localStorage.setItem(k, JSON.stringify(v));
+    } catch (e) {}
+  }
+};
+
+const img = (s) => `https://picsum.photos/seed/${s}/600/600`;
+const DEFAULTS = [
+  {id: 1, name: "Geschmiedete Rauschunterdrückungs-Laute (Bluetooth)", price: 59.99, old: 89.99, cat: "Artefakte", images: [img("headphone1"), img("headphone2")], desc: "Feinster Klang aus Klangholz und Stahl, 30 Stunden magische Ausdauer.", rating: 4.6, reviews: 1284, stock: 25, prime: true, t: 1},
+  {id: 2, name: "Runen-Armreif Puls- und Schrittmesser", price: 39.9, old: 69.9, cat: "Artefakte", images: [img("watch1"), img("watch2")], desc: "Misst Herzschlag und Tagwerk. Wasserdicht bis zum Grund des Brunnens.", rating: 4.3, reviews: 856, stock: 8, prime: true, t: 2},
+  {id: 3, name: "Kupferne Feldflasche 750ml isoliert", price: 17.5, old: null, cat: "Gefässe", images: [img("bottle1"), img("bottle2")], desc: "Hält Met 24 Stunden kalt oder Drachenfeuer 12 Stunden heiss.", rating: 4.8, reviews: 432, stock: 60, prime: true, t: 3},
+  {id: 4, name: "Eisenbeschlagene Tasten-Maus 7200 DPI", price: 24.99, old: 34.99, cat: "Werkzeug", images: [img("mouse1"), img("mouse2")], desc: "Ergonomisch geformt für lange Nächte in der Schreibstube.", rating: 4.4, reviews: 2210, stock: 40, prime: false, t: 4},
+  {id: 5, name: "Mechanische Schreibtafel (Klick-Tastatur)", price: 49.0, old: 64.0, cat: "Werkzeug", images: [img("keyboard1"), img("keyboard2")], desc: "Taktiles Tippgefühl mit robustem Stahlgehäuse und Messingfedern.", rating: 4.5, reviews: 975, stock: 3, prime: true, t: 5},
+  {id: 6, name: "Wasserdichter Leder-Ranzen 30L mit Amulett-Lader", price: 29.95, old: 44.95, cat: "Rüstung", images: [img("backpack1"), img("backpack2")], desc: "Viel Platz für Pergamente, Fach bis 15,6 Zoll und magischer USB-Anschluss.", rating: 4.7, reviews: 3120, stock: 33, prime: true, t: 6},
+  {id: 7, name: "Messing-Schreibtischleuchte mit Runen-Dimmung", price: 21.99, old: null, cat: "Gefässe", images: [img("lamp1"), img("lamp2")], desc: "Schont die Augen beim Studium alter Folianten.", rating: 4.2, reviews: 310, stock: 19, prime: false, t: 7},
+  {id: 8, name: "Robuste Wander-Stiefel aus Rindsleder", price: 44.9, old: 79.9, cat: "Rüstung", images: [img("shoe1"), img("shoe2")], desc: "Fester Halt auf jedem Pfad durch das Königreich.", rating: 4.1, reviews: 598, stock: 14, prime: true, t: 8},
+  {id: 9, name: "Klangstein-Horn (Tragbarer Lautsprecher)", price: 32.0, old: 49.0, cat: "Artefakte", images: [img("speaker1"), img("speaker2")], desc: "Gewaltiger Rundum-Schall für die Taverne, wasserfest.", rating: 4.5, reviews: 1745, stock: 27, prime: true, t: 9},
+  {id: 10, name: "Yogamatte aus gegerbtem Moos (extra dick)", price: 19.99, old: null, cat: "Sport", images: [img("yoga1"), img("yoga2")], desc: "Für die morgendliche Meditation und Körpergymnastik.", rating: 4.6, reviews: 812, stock: 50, prime: false, t: 10},
+  {id: 11, name: "Kupferkessel-Brüher 1,5L mit Zeitschalt-Sanduhr", price: 36.5, old: 54.9, cat: "Gefässe", images: [img("coffee1"), img("coffee2")], desc: "Für den heißesten Bohnentrank am Morgen.", rating: 4.4, reviews: 421, stock: 11, prime: true, t: 11},
+  {id: 12, name: "Gusseiserner Hantel-Satz 20kg", price: 69.0, old: 99.0, cat: "Sport", images: [img("dumbbell1"), img("dumbbell2")], desc: "Zum Stärken der Arme für den Schwertkampf.", rating: 4.7, reviews: 267, stock: 6, prime: true, t: 12}
 ];
 
-let products=[], cart=LS.get('mejt_cart',{}), wish=LS.get('mejt_wish',[]).map(String), cat='all', query='', sortBy='feat', started=false;
-let currentShop=LS.get('mejt_current_shop',null); // 'minecraft' or 'mejt'
-let admin=!CLOUD&&sessionStorage.getItem('mejt_admin')==='1';
-let orders=[], ordFilter='open', unsubOrders=null, ordFirst=true;
-const hash=s=>{let h=5381;for(const c of s)h=((h<<5)+h+c.charCodeAt(0))>>>0;return h.toString(36)};
-let creds=LS.get('mejt_creds',{u:'admin',h:hash('admin123')});
+let products = [], cart = LS.get('mejt_cart', {}), wish = LS.get('mejt_wish', []).map(String), cat = 'all', query = '', sortBy = 'feat';
+let admin = sessionStorage.getItem('mejt_admin') === '1';
+let orders = [], ordFilter = 'open';
 
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const eur=n=>Number(n).toLocaleString('de-DE',{style:'currency',currency:'EUR'});
-const FALLBACK="data:image/svg+xml;utf8,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="400" height="400" fill="#f0f0f0"/><text x="200" y="210" font-size="60" text-anchor="middle">?</text><text x="200" y="260" font-size="16" text-anchor="middle" fill="#888" font-family="Arial">Bild nicht gefunden</text></svg>');
-const safeUrl=u=>/^https?:\/\//i.test(u)?u:FALLBACK;
+let bannerConfig = LS.get('mejt_banner', {
+  text: "Eiserne Lieferung ab 29 Taler - Taegliche Gilden-Sonderangebote - Neukunden: Rabatt mit Code MEJT10 - Sichere Bezahlung - Ueber 10 zufriedene Buerger",
+  bg: "#7c2d12",
+  color: "#fde047",
+  popTitle: "Willkommen in der Schmiede!",
+  popText: "Schön, dass du den Weg hierher gefunden hast. Entdecke unsere geschmiedeten Waren."
+});
 
-const normalize=l=>l.map(p=>({...p,id:String(p.id),shop:p.shop||'mejt',images:Array.isArray(p.images)?p.images:[]}));
-const permErr=e=>{console.error(e);toast(e&&e.code==='permission-denied'?'Keine Berechtigung':'Fehler: '+((e&&e.message)||e))};
-const saveProducts=()=>LS.set('mejt_products',products);
-const pdata=p=>{const {id,...d}=p;return d};
+function applyBannerSettings() {
+  const b = $('#topTicker');
+  b.style.background = bannerConfig.bg;
+  b.style.color = bannerConfig.color;
+  $('#tickerText').textContent = bannerConfig.text;
+  $('#popupTitle').textContent = bannerConfig.popTitle;
+  $('#popupText').textContent = bannerConfig.popText;
+  
+  $('#bText').value = bannerConfig.text;
+  $('#bBg').value = bannerConfig.bg;
+  $('#bColor').value = bannerConfig.color;
+  $('#popTitle').value = bannerConfig.popTitle;
+  $('#popDesc').value = bannerConfig.popText;
+}
 
-async function loadProducts(){
-  if(CLOUD){
-    await new Promise(res=>{
-      fs.onSnapshot(fs.collection(db,'products'),snap=>{
-        products=normalize(snap.docs.map(d=>({...d.data(),id:d.id}))).sort((a,b)=>(b.t||0)-(a.t||0));
-        if(started){refresh();renderCart();updateBadges();if($('#adminOv').classList.contains('show'))renderAdminRows()}
-        res();
-      },err=>{console.error(err);toast('Datenbank-Fehler');products=normalize(DEFAULTS);res()});
-    });
+const hash = s => {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) {
+    h = ((h << 5) + h + s.charCodeAt(i)) >>> 0;
+  }
+  return h.toString(36);
+};
+
+let creds = LS.get('mejt_creds', {u: 'admin', h: hash('admin123')});
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const eur = n => Number(n).toLocaleString('de-DE', {style: 'currency', currency: 'EUR'}).replace('€', 'Taler');
+const FALLBACK = "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="400" height="400" fill="#0f1117"/><text x="200" y="210" font-size="20" text-anchor="middle" fill="#9ca3af" font-family="sans-serif">Kein Artefakt</text></svg>');
+const safeUrl = u => /^https?:\/\//i.test(u) ? u : FALLBACK;
+
+const normalize = l => l.map(p => ({...p, id: String(p.id), images: Array.isArray(p.images) ? p.images : []}));
+const saveProducts = () => LS.set('mejt_products', products);
+
+async function loadProducts() {
+  const saved = LS.get('mejt_products', null);
+  if (saved) {
+    products = normalize(saved);
     return;
   }
-  const saved=LS.get('mejt_products',null);
-  if(saved){products=normalize(saved);return}
-  try{const r=await fetch('products.json',{cache:'no-store'});if(r.ok){const j=await r.json();if(Array.isArray(j)&&j.length){products=normalize(j);return}}}catch(e){}
-  products=normalize(JSON.parse(JSON.stringify(DEFAULTS)));
-}
-async function dbSave(p){if(CLOUD)await fs.setDoc(fs.doc(db,'products',String(p.id)),pdata(p));else saveProducts()}
-async function dbDelete(id){if(CLOUD)await fs.deleteDoc(fs.doc(db,'products',String(id)));else{products=products.filter(p=>p.id!=id);saveProducts()}}
-async function dbReplaceAll(list){
-  if(!CLOUD){products=list;saveProducts();return}
-  const snap=await fs.getDocs(fs.collection(db,'products')),ops=[];
-  snap.forEach(d=>{if(!list.some(p=>String(p.id)===d.id))ops.push(b=>b.delete(d.ref))});
-  list.forEach(p=>ops.push(b=>b.set(fs.doc(db,'products',String(p.id)),pdata(p))));
-  for(let i=0;i<ops.length;i+=400){const b=fs.writeBatch(db);ops.slice(i,i+400).forEach(o=>o(b));await b.commit()}
+  try {
+    const r = await fetch('products.json', {cache: 'no-store'});
+    if (r.ok) {
+      const j = await r.json();
+      if (Array.isArray(j) && j.length) {
+        products = normalize(j);
+        return;
+      }
+    }
+  } catch (e) {}
+  products = normalize(JSON.parse(JSON.stringify(DEFAULTS)));
 }
 
-// Banner / Ticker handling
-function loadBanner(){
-  const b=LS.get('mejt_banner_text',null);
-  if(b)$('#tickerText').textContent=b;
-  $('#bannerInput').value=$('#tickerText').textContent;
+async function dbSave(p) { saveProducts(); }
+async function dbDelete(id) { products = products.filter(p => p.id != id); saveProducts(); }
+async function dbReplaceAll(list) { products = list; saveProducts(); }
+
+const saveCart = () => LS.set('mejt_cart', cart);
+const saveWish = () => LS.set('mejt_wish', wish);
+const cats = () => [...new Set(products.map(p => p.cat).filter(Boolean))];
+
+function toast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  $('#toasts').appendChild(t);
+  setTimeout(() => t.remove(), 3100);
 }
-loadBanner();
 
-$('#saveBannerBtn').onclick=()=>{
-  const txt=$('#bannerInput').value.trim();
-  if(!txt)return;
-  LS.set('mejt_banner_text',txt);
-  $('#tickerText').textContent=txt;
-  toast('Werbebanner aktualisiert');
-};
+function ripple(e) {
+  const b = e.currentTarget, r = document.createElement('span'), d = Math.max(b.clientWidth, b.clientHeight);
+  const rc = b.getBoundingClientRect();
+  r.className = 'ripple';
+  r.style.cssText = `width:${d}px;height:${d}px;left:${e.clientX - rc.left - d/2}px;top:${e.clientY - rc.top - d/2}px`;
+  b.appendChild(r);
+  setTimeout(() => r.remove(), 600);
+}
 
-// Shop Switching Logic
-function checkShopSelected(){
-  if(!currentShop){
-    $('#shopSelectorOv').style.display='flex';
-  }else{
-    $('#shopSelectorOv').style.display='none';
-    applyShopTheme();
+document.addEventListener('click', e => {
+  const b = e.target.closest('.add,.btn,.cta');
+  if (b && !b.disabled) ripple({currentTarget: b, clientX: e.clientX, clientY: e.clientY});
+}, true);
+
+function openModal(id) { $('#' + id).classList.add('show'); }
+function closeModal(id) { $('#' + id).classList.remove('show'); }
+
+function confetti() {
+  const cols = ['#f3ba2f', '#ff7b00', '#ff3d00', '#ffffff'];
+  for (let i = 0; i < 90; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random() * 100 + 'vw';
+    c.style.background = cols[i % cols.length];
+    document.body.appendChild(c);
+    c.animate([
+      {transform: 'translateY(0) rotate(0)', opacity: 1},
+      {transform: `translateY(${innerHeight + 40}px) translateX(${(Math.random() - .5) * 300}px) rotate(${Math.random() * 900}deg)`, opacity: .8}
+    ], {duration: 1800 + Math.random() * 1800, easing: 'cubic-bezier(.2,.6,.4,1)'}).onfinish = () => c.remove();
   }
 }
 
-function selectShop(shop){
-  currentShop=shop;
-  LS.set('mejt_current_shop',shop);
-  $('#shopSelectorOv').style.display='none';
-  cat='all';query='';$('#q').value='';
-  applyShopTheme();
-  refresh();
+function flyToCart(srcImg) {
+  if (!srcImg) return;
+  const a = srcImg.getBoundingClientRect(), t = $('#cartBtn').getBoundingClientRect();
+  const f = document.createElement('img');
+  f.src = srcImg.src;
+  f.style.cssText = `position:fixed;z-index:999;left:${a.left}px;top:${a.top}px;width:${a.width}px;height:${a.height}px;object-fit:contain;border-radius:8px;pointer-events:none`;
+  document.body.appendChild(f);
+  f.animate([
+    {transform: 'translate(0,0) scale(1) rotate(0)', opacity: 1},
+    {transform: `translate(${t.left - a.left}px,${t.top - a.top}px) scale(.08) rotate(540deg)`, opacity: .3}
+  ], {duration: 900, easing: 'cubic-bezier(.5,0,.8,.4)'}).onfinish = () => f.remove();
 }
 
-function applyShopTheme(){
-  if(currentShop==='minecraft'){
-    $('#brandSub').textContent=' Minecraft';
-    $('#heroTitle1').textContent='MEJT Minecraft-Shop';
-    $('#heroDesc1').textContent='Ränge, Items und Emeralds sicher und direkt erwerben.';
-  } else {
-    $('#brandSub').textContent=' Shop';
-    $('#heroTitle1').textContent='Willkommen im MEJT Shop';
-    $('#heroDesc1').textContent='Entdecke Top-Produkte zu fairen Preisen – schnell, sicher und einfach.';
+function stars(r) {
+  return `<span class="starbox">★★★★★<i data-w="${Math.max(0, Math.min(5, r)) / 5 * 100}%">★★★★★</i></span>`;
+}
+
+function renderNav() {
+  const list = ['all', ...cats()];
+  $('#nav').innerHTML = list.map(c => `<button data-cat="${esc(c)}" class="${c === cat ? 'active' : ''}">${c === 'all' ? 'Alle Gilden' : esc(c)}</button>`).join('') + `<button data-cat="__deals">Auktionen</button>`;
+  $('#searchCat').innerHTML = `<option value="all">Alle Gilden</option>` + cats().map(c => `<option ${c === cat ? 'selected' : ''} value="${esc(c)}">${esc(c)}</option>`).join('');
+  $('#catList').innerHTML = cats().map(c => `<option value="${esc(c)}">`).join('');
+}
+
+function renderCatCards() {
+  const cs = cats().slice(0, 4);
+  $('#catCards').innerHTML = cs.map((c, i) => {
+    const ps = products.filter(p => p.cat === c).slice(0, 4);
+    while (ps.length && ps.length < 4) ps.push(ps[ps.length % Math.max(1, ps.length)]);
+    return `<div class="catcard" data-cat="${esc(c)}" style="animation-delay:${i * .12 + 1}s"><h3>Gilde: ${esc(c)}</h3><div class="imgs">${ps.map(p => `<div style="background-image:url('${esc(safeUrl(p.images[0]))}')"></div>`).join('')}</div><a>Erkunden &gt;</a></div>`;
+  }).join('');
+}
+
+function filtered() {
+  let l = products.slice();
+  if (cat === '__deals') l = l.filter(p => p.old && p.old > p.price);
+  else if (cat !== 'all') l = l.filter(p => p.cat === cat);
+  if (query) {
+    const q = query.toLowerCase();
+    l = l.filter(p => (p.name + ' ' + p.cat + ' ' + (p.desc || '')).toLowerCase().includes(q));
   }
-}
-
-$('#chooseMinecraft').onclick=()=>selectShop('minecraft');
-$('#chooseMejt').onclick=()=>selectShop('mejt');
-$('#switchShopBtn').onclick=()=>{$('#shopSelectorOv').style.display='flex'};
-
-let user=null, pendingCheckout=false, openAdminAfter=false, authMode='in';
-const AUTH_ERR={'auth/invalid-credential':'E-Mail oder Passwort falsch','auth/wrong-password':'E-Mail oder Passwort falsch','auth/user-not-found':'E-Mail oder Passwort falsch','auth/email-already-in-use':'E-Mail bereits vergeben','auth/weak-password':'Passwort zu schwach (min. 6 Zeichen)'};
-const shake=el=>{el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake')};
-function setAuthMode(m){
-  authMode=m;const reg=m==='up';
-  $('#lTitle').textContent=reg?'Konto erstellen':'Anmelden';
-  $('#doLogin').textContent=reg?'Registrieren':'Anmelden';
-  $('#lNameBox').style.display=reg?'':'none';
-  $('#lToggle').textContent=reg?'Schon ein Konto? Anmelden':'Neu hier? Konto erstellen';
-}
-function showLogin(mode,msg){
-  if(CLOUD)setAuthMode(mode||'in');
-  $('#lMsg').textContent=msg||'';$('#lMsg').style.display=msg?'':'none';
-  $('#lUser').value='';$('#lPass').value='';$('#lName').value='';
-  open('loginOv');setTimeout(()=>$(CLOUD&&authMode==='up'?'#lName':'#lUser').focus(),100);
-}
-async function cloudLogin(){
-  const email=$('#lUser').value.trim(),pw=$('#lPass').value,reg=authMode==='up',name=$('#lName').value.trim();
-  const bad=m=>{shake($('#loginBox'));toast(m)};
-  if(!email||!pw)return bad('Bitte E-Mail und Passwort eingeben');
-  if(reg&&name.length<2)return bad('Bitte Namen eingeben');
-  if(reg&&pw.length<6)return bad('Passwort mind. 6 Zeichen');
-  const btn=$('#doLogin');btn.disabled=true;
-  try{
-    if(reg){const cr=await au.createUserWithEmailAndPassword(auth,email,pw);try{await au.updateProfile(cr.user,{displayName:name})}catch(e){}}
-    else{openAdminAfter=!pendingCheckout;await au.signInWithEmailAndPassword(auth,email,pw)}
-    close('loginOv');setAdminUI();
-    if(pendingCheckout){pendingCheckout=false;toast('Angemeldet – weiter zur Kasse');setTimeout(showCheckout,300)}
-    else toast(reg?'Konto erstellt':'Willkommen zurück');
-  }catch(e){
-    console.error(e);openAdminAfter=false;
-    bad(AUTH_ERR[e&&e.code]||('Fehler: '+((e&&e.message)||e)));
-  }finally{btn.disabled=false}
-}
-async function forgotPw(){
-  const email=$('#lUser').value.trim();
-  if(!email){toast('Bitte zuerst E-Mail eingeben');$('#lUser').focus();return}
-  try{await au.sendPasswordResetEmail(auth,email)}catch(e){}
-  toast('Falls ein Konto existiert, wurde eine E-Mail gesendet');
-}
-const saveCart=()=>LS.set('mejt_cart',cart);
-const saveWish=()=>LS.set('mejt_wish',wish);
-
-const currentShopProducts=()=>products.filter(p=>p.shop===(currentShop||'mejt'));
-const cats=()=>[...new Set(currentShopProducts().map(p=>p.cat).filter(Boolean))];
-
-function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;$('#toasts').appendChild(t);setTimeout(()=>t.remove(),3100)}
-function ripple(e){const b=e.currentTarget,r=document.createElement('span'),d=Math.max(b.clientWidth,b.clientHeight);const rc=b.getBoundingClientRect();r.className='ripple';r.style.cssText=`width:${d}px;height:${d}px;left:${e.clientX-rc.left-d/2}px;top:${e.clientY-rc.top-d/2}px`;b.appendChild(r);setTimeout(()=>r.remove(),600)}
-document.addEventListener('click',e=>{const b=e.target.closest('.add,.btn,.cta');if(b&&!b.disabled)ripple({currentTarget:b,clientX:e.clientX,clientY:e.clientY})},true);
-function open(id){$('#'+id).classList.add('show')}
-function close(id){$('#'+id).classList.remove('show')}
-function confetti(){const cols=['#ff9900','#febd69','#cc0c39','#00a8e1','#067d62','#fff'];for(let i=0;i<90;i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*100+'vw';c.style.background=cols[i%cols.length];document.body.appendChild(c);c.animate([{transform:'translateY(0) rotate(0)',opacity:1},{transform:`translateY(${innerHeight+40}px) translateX(${(Math.random()-.5)*300}px) rotate(${Math.random()*900}deg)`,opacity:.8}],{duration:1800+Math.random()*1800,easing:'cubic-bezier(.2,.6,.4,1)'}).onfinish=()=>c.remove()}}
-function flyToCart(srcImg){if(!srcImg)return;const a=srcImg.getBoundingClientRect(),t=$('#cartBtn').getBoundingClientRect();const f=document.createElement('img');f.src=srcImg.src;f.style.cssText=`position:fixed;z-index:999;left:${a.left}px;top:${a.top}px;width:${a.width}px;height:${a.height}px;object-fit:contain;border-radius:12px;pointer-events:none`;document.body.appendChild(f);f.animate([{transform:'translate(0,0) scale(1) rotate(0)',opacity:1},{transform:`translate(${t.left-a.left}px,${t.top-a.top}px) scale(.08) rotate(540deg)`,opacity:.3}],{duration:900,easing:'cubic-bezier(.5,0,.8,.4)'}).onfinish=()=>f.remove()}
-function stars(r){return `<span class="starbox">★★★★★<i data-w="${Math.max(0,Math.min(5,r))/5*100}%">★★★★★</i></span>`}
-
-function renderNav(){
-  const list=['all',...cats()];
-  $('#nav').innerHTML=list.map(c=>`<button data-cat="${esc(c)}" class="${c===cat?'active':''}">${c==='all'?'Alle':esc(c)}</button>`).join('')+`<button data-cat="__deals">Angebote</button>`;
-  $('#searchCat').innerHTML=`<option value="all">Alle</option>`+cats().map(c=>`<option ${c===cat?'selected':''} value="${esc(c)}">${esc(c)}</option>`).join('');
-  $('#catList').innerHTML=cats().map(c=>`<option value="${esc(c)}">`).join('');
-}
-function renderCatCards(){
-  const cs=cats().slice(0,4);
-  const shopProds=currentShopProducts();
-  $('#catCards').innerHTML=cs.map((c,i)=>{const ps=shopProds.filter(p=>p.cat===c).slice(0,4);while(ps.length&&ps.length<4)ps.push(ps[ps.length%Math.max(1,ps.length)]);
-    return `<div class="catcard" data-cat="${esc(c)}" style="animation-delay:${i*.12+1}s"><h3>${esc(c)}</h3><div class="imgs">${ps.map(p=>`<div style="background-image:url('${esc(safeUrl(p.images[0]))}')"></div>`).join('')}</div><a>Mehr anzeigen &rsaquo;</a></div>`}).join('');
-}
-function filtered(){
-  let l=currentShopProducts();
-  if(cat==='__deals')l=l.filter(p=>p.old&&p.old>p.price);
-  else if(cat!=='all')l=l.filter(p=>p.cat===cat);
-  if(query){const q=query.toLowerCase();l=l.filter(p=>(p.name+' '+p.cat+' '+(p.desc||'')).toLowerCase().includes(q))}
-  const s={pa:(a,b)=>a.price-b.price,pd:(a,b)=>b.price-a.price,rt:(a,b)=>b.rating-a.rating,new:(a,b)=>(b.t||b.id)-(a.t||a.id)}[sortBy];
-  if(s)l.sort(s);
+  const s = {
+    pa: (a, b) => a.price - b.price,
+    pd: (a, b) => b.price - a.price,
+    rt: (a, b) => b.rating - a.rating,
+    new: (a, b) => (b.t || b.id) - (a.t || a.id)
+  }[sortBy];
+  if (s) l.sort(s);
   return l;
 }
-function renderGrid(){
-  const l=filtered();
-  $('#listTitle').textContent=(cat==='all'?'Alle Produkte':cat==='__deals'?'Angebote':cat)+(query?` – „${query}"`:'')+` (${l.length})`;
-  $('#dealBar').style.display=currentShopProducts().some(p=>p.old&&p.old>p.price)?'flex':'none';
-  if(!l.length){$('#grid').innerHTML=`<div class="empty"><div>🔍</div><h3>Keine Produkte gefunden</h3><p style="color:var(--muted)">Versuche einen anderen Suchbegriff.</p></div>`;return}
-  $('#grid').innerHTML=l.map((p,i)=>{
-    const disc=p.old&&p.old>p.price?Math.round((1-p.price/p.old)*100):0;
-    const [eu,ct]=Number(p.price).toFixed(2).split('.');
-    return `<div class="card" data-id="${p.id}" style="transition-delay:${(i%6)*.07}s">
-      ${disc?`<div class="tag">-${disc}%</div>`:''}
-      <button class="heart ${wish.includes(p.id)?'on':''}" data-act="wish" data-id="${p.id}">♥</button>
+
+function renderGrid() {
+  const l = filtered();
+  $('#listTitle').textContent = (cat === 'all' ? 'Das gesamte Inventar' : cat === '__deals' ? 'Auktionen' : 'Gilde: ' + cat) + (query ? ` – "${query}"` : '') + ` (${l.length})`;
+  $('#dealBar').style.display = products.some(p => p.old && p.old > p.price) ? 'flex' : 'none';
+  if (!l.length) {
+    $('#grid').innerHTML = `<div class="empty"><h3>Keine Artefakte gefunden</h3><p style="color:var(--muted)">Versuche einen anderen Suchbegriff.</p></div>`;
+    return;
+  }
+  $('#grid').innerHTML = l.map((p, i) => {
+    const disc = p.old && p.old > p.price ? Math.round((1 - p.price / p.old) * 100) : 0;
+    const [eu, ct] = Number(p.price).toFixed(2).split('.');
+    return `<div class="card" data-id="${p.id}" style="transition-delay:${(i % 6) * .07}s">
+      ${disc ? `<div class="tag">-${disc}%</div>` : ''}
+      <button class="heart ${wish.includes(p.id) ? 'on' : ''}" data-act="wish" data-id="${p.id}">${wish.includes(p.id) ? '♥' : '♡'}</button>
       <div class="pic skel" data-act="open" data-id="${p.id}"><img loading="lazy" src="${esc(safeUrl(p.images[0]))}" alt="${esc(p.name)}" onload="this.parentNode.classList.remove('skel')" onerror="this.src='${FALLBACK}';this.parentNode.classList.remove('skel')"></div>
       <h3 data-act="open" data-id="${p.id}">${esc(p.name)}</h3>
-      <div class="stars">${stars(p.rating)} <span>${Number(p.reviews).toLocaleString('de-DE')}</span></div>
-      <div class="price"><sup>€</sup><b data-count="${p.price}">${eu}</b><sup>${ct}</sup>${p.old&&p.old>p.price?`<span class="old">${eur(p.old)}</span>`:''}</div>
-      ${p.prime?'<div class="prime">✓prime <span style="color:var(--muted);font-style:normal;font-weight:400">Gratis Lieferung</span></div>':''}
-      <div class="stock ${p.stock<=5?'low':''}">${p.stock<=0?'Nicht verfügbar':p.stock<=5?`Nur noch ${p.stock} auf Lager!`:'Auf Lager'}</div>
-      <button class="add" data-act="add" data-id="${p.id}" ${p.stock<=0?'disabled':''}>In den Warenkorb</button>
-    </div>`}).join('');
+      <div class="stars">${stars(p.rating)} <span>(${Number(p.reviews).toLocaleString('de-DE')})</span></div>
+      <div class="price"><b data-count="${p.price}">${eu},${ct}</b> <sup>Taler</sup> ${p.old && p.old > p.price ? `<span class="old">${eur(p.old)}</span>` : ''}</div>
+      ${p.prime ? '<div class="prime">Gilden-Kurier <span style="color:var(--muted);font-style:normal;font-weight:400">Kostenlos</span></div>' : ''}
+      <div class="stock ${p.stock <= 5 ? 'low' : ''}">${p.stock <= 0 ? 'Derzeit vergriffen' : p.stock <= 5 ? `Nur noch ${p.stock} im Lager!` : 'Vorrätig'}</div>
+      <button class="add" data-act="add" data-id="${p.id}" ${p.stock <= 0 ? 'disabled' : ''}>In den Sack</button>
+    </div>`;
+  }).join('');
   observe();
 }
-const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');e.target.querySelectorAll('.starbox i').forEach(i=>i.style.width=i.dataset.w);io.unobserve(e.target)}}),{threshold:.12});
-function observe(){$$('.card').forEach(c=>io.observe(c))}
 
-function cartCount(){return Object.values(cart).reduce((a,b)=>a+b,0)}
-function updateBadges(){const b=$('#cartCount');b.textContent=cartCount();b.classList.remove('bump');void b.offsetWidth;b.classList.add('bump');$('#wishCount').textContent=wish.length}
-function addToCart(id,n=1,src){const p=products.find(x=>x.id==id);if(!p)return;const cur=cart[id]||0;if(cur+n>p.stock){toast('Nicht mehr Bestand verfügbar');return}cart[id]=cur+n;saveCart();updateBadges();flyToCart(src);toast('Zum Warenkorb hinzugefügt');renderCart()}
-function renderCart(){
-  const ids=Object.keys(cart).filter(id=>products.find(p=>p.id==id));
-  let tot=0;
-  $('#cartBody').innerHTML=ids.length?ids.map(id=>{const p=products.find(x=>x.id==id),q=cart[id];tot+=p.price*q;return `<div class="ci" data-cid="${id}"><img src="${esc(safeUrl(p.images[0]))}" onerror="this.src='${FALLBACK}'"><div class="info"><b>${esc(p.name)}</b><div style="color:var(--red)">${eur(p.price)}</div><div class="qty"><button data-act="dec" data-id="${id}">−</button><b>${q}</b><button data-act="inc" data-id="${id}">+</button><button data-act="rm" data-id="${id}" style="margin-left:auto;width:auto;padding:0 10px;border-radius:14px">Entfernen</button></div></div></div>`}).join(''):`<div class="empty"><h3>Dein Warenkorb ist leer</h3></div>`;
-  $('#cartTotal').textContent=eur(tot);
-}
-function openCart(){renderCart();$('#drawer').classList.add('show');open('cartOv')}
-function closeCart(){$('#drawer').classList.remove('show');close('cartOv')}
-
-function showDetail(id){
-  const p=products.find(x=>x.id==id);if(!p)return;let qty=1;
-  const imgs=p.images.length?p.images:[FALLBACK];
-  $('#detailBox').innerHTML=`<button class="x" data-close="detailOv">&#10005;</button><div class="detail">
-    <div><div class="main-img"><img id="dMain" src="${esc(safeUrl(imgs[0]))}" onerror="this.src='${FALLBACK}'"></div><div class="thumbs">${imgs.map((u,i)=>`<img class="${i?'':'on'}" src="${esc(safeUrl(u))}" data-thumb="${esc(safeUrl(u))}" onerror="this.src='${FALLBACK}'">`).join('')}</div></div>
-    <div><div style="color:var(--link);font-size:13px">${esc(p.cat)}</div><h2>${esc(p.name)}</h2>
-    <div class="stars">${stars(p.rating)} <b>${Number(p.rating).toFixed(1)}</b> <span>(${p.reviews} Bewertungen)</span></div><hr style="margin:10px 0;border:none;border-top:1px solid #eee">
-    <div class="price">${eur(p.price)} ${p.old&&p.old>p.price?`<span class="old">${eur(p.old)}</span>`:''}</div>
-    ${p.prime?'<div class="prime">✓prime Gratis Lieferung</div>':''}
-    <p style="margin:12px 0;line-height:1.5">${esc(p.desc)}</p>
-    <div class="stock ${p.stock<=5?'low':''}">${p.stock<=0?'Nicht verfügbar':p.stock<=5?`Nur noch ${p.stock} auf Lager!`:'Auf Lager'}</div>
-    <div class="qty">Menge: <button id="dm">−</button><b id="dq">1</b><button id="dp">+</button></div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" id="dAdd" ${p.stock<=0?'disabled':''}>In den Warenkorb</button><button class="btn o" id="dBuy" ${p.stock<=0?'disabled':''}>Jetzt kaufen</button></div></div></div>`;
-  open('detailOv');
-  setTimeout(()=>$$('#detailBox .starbox i').forEach(i=>i.style.width=i.dataset.w),100);   $$('#detailBox [data-thumb]').forEach(t=>t.onclick=()=>{$('#dMain').src=t.dataset.thumb;$$('#detailBox .thumbs img').forEach(x=>x.classList.remove('on'));t.classList.add('on')});
-  $('#dm').onclick=()=>{qty=Math.max(1,qty-1);$('#dq').textContent=qty};
-  $('#dp').onclick=()=>{qty=Math.min(p.stock,qty+1);$('#dq').textContent=qty};
-  $('#dAdd').onclick=()=>addToCart(id,qty,$('#dMain'));
-  $('#dBuy').onclick=()=>{addToCart(id,qty);close('detailOv');setTimeout(showCheckout,300)};
-}
-
-function setAdminUI(){$('#adminbar').classList.toggle('on',admin);const cu=CLOUD&&auth?auth.currentUser:null;$('#accLabel').textContent=admin?'Admin':cu?((cu.displayName\vert{}\vert{}cu.email\vert{}\vert{}'Konto').split(/[ @]/)[0]):'Anmelden';$$('.adminOnly').forEach(e=>e.style.display=admin?'':'none')}
-function renderAdminRows(){
-  $('#aRows').innerHTML=products.map((p,i)=>`<tr style="animation-delay:${i*.03}s"><td><img src="${esc(safeUrl(p.images[0]))}" onerror="this.src='${FALLBACK}'"></td><td>${esc(p.name)}</td><td><b>${p.shop==='minecraft'?'Minecraft':'MEJT (IRL)'}</b></td><td>${esc(p.cat)}</td><td>${eur(p.price)}</td><td>${p.stock}</td><td style="white-space:nowrap"><button class="btn sm2" data-act="aedit" data-id="${p.id}">Bearbeiten</button> <button class="btn red sm2" data-act="adel" data-id="${p.id}">Löschen</button></td></tr>`).join('')||'<tr><td colspan="7">Keine Produkte</td></tr>';
-}
-function tab(id){$$('.apane').forEach(p=>p.classList.toggle('on',p.id===id));$$('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===id))}
-function clearForm(){['pId','pName','pPrice','pOld','pCat','pImgs','pDesc'].forEach(i=>$('#'+i).value='');$('#pShop').value=currentShop||'mejt';$('#pStock').value=10;$('#pRating').value=4.5;$('#pReviews').value=12;$('#pPrime').checked=true;$('#pPrev').innerHTML='';$('#formTitle').textContent='Neues Produkt';$('#tabForm').textContent='Produkt hinzufügen'}
-function editProd(id){const p=products.find(x=>x.id==id);if(!p)return;tab('aForm');$('#pId').value=p.id;$('#pShop').value=p.shop\vert{}\vert{}'mejt';$('#pName').value=p.name;$('#pPrice').value=p.price;$('#pOld').value=p.old||'';$('#pCat').value=p.cat;$('#pImgs').value=p.images.join('\n');$('#pDesc').value=p.desc\vert{}\vert{}'';$('#pStock').value=p.stock;$('#pRating').value=p.rating;$('#pReviews').value=p.reviews;$('#pPrime').checked=!!p.prime;$('#formTitle').textContent='Produkt bearbeiten';$('#tabForm').textContent='Bearbeiten';previewImgs()}
-function previewImgs(){const u=$('#pImgs').value.split('\n').map(s=>s.trim()).filter(Boolean);$('#pPrev').innerHTML=u.map(x=>`<img src="${esc(safeUrl(x))}" onerror="this.src='${FALLBACK}'">`).join('')}
-async function saveProd(){
-  const shop=$('#pShop').value,name=$('#pName').value.trim(),price=parseFloat($('#pPrice').value),c=$('#pCat').value.trim(),imgs=$('#pImgs').value.split('\n').map(s=>s.trim()).filter(Boolean);
-  if(!name||isNaN(price)||!c||!imgs.length){toast('Name, Preis, Kategorie und Bild-URL erforderlich');return}
-  const old=parseFloat($('#pOld').value);
-  const data={shop,name,price,old:isNaN(old)?null:old,cat:c,images:imgs,desc:$('#pDesc').value.trim(),rating:Math.min(5,Math.max(0,parseFloat($('#pRating').value)\vert{}\vert{}0)),reviews:parseInt($('#pReviews').value)||0,stock:Math.max(0,parseInt($('#pStock').value)\vert{}\vert{}0),prime:$('#pPrime').checked};
-  const id=$('#pId').value;
-  const existing=id?products.find(p=>p.id==id):null;
-  const prod=existing?{...existing,...data}:{id:String(Date.now()),t:Date.now(),...data};
-  try{
-    if(!CLOUD){if(existing)Object.assign(existing,data);else products.unshift(prod)}
-    await dbSave(prod);
-    toast(existing?'Produkt aktualisiert':'Produkt hinzugefügt');
-    clearForm();refresh();renderAdminRows();tab('aList');
-  }catch(e){permErr(e)}
-}
-
-const ORD_LABEL={open:'Offen',shipped:'Versendet',cancelled:'Storniert'};
-const ordTime=t=>new Date(t).toLocaleString('de-DE',{dateStyle:'medium',timeStyle:'short'});
-const openOrderCount=()=>orders.filter(o=>o.status==='open').length;
-async function createOrder(order){
-  if(CLOUD){await fs.setDoc(fs.doc(fs.collection(db,'orders')),order)}
-  else{orders.unshift({...order,id:String(Date.now())});LS.set('mejt_orders',orders)}
-}
-async function setOrderStatus(o,status){
-  const delta=(o.status!=='shipped'&&status==='shipped')?-1:(o.status==='shipped'&&status!=='shipped')?1:0;
-  if(!CLOUD){
-    o.status=status;
-    if(delta)(o.items||[]).forEach(it=>{const p=products.find(x=>x.id==it.id);if(p)p.stock=Math.max(0,p.stock+delta*it.qty)});
-    LS.set('mejt_orders',orders);saveProducts();return;
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if (e.isIntersecting) {
+    e.target.classList.add('in');
+    e.target.querySelectorAll('.starbox i').forEach(i => i.style.width = i.dataset.w);
+    io.unobserve(e.target);
   }
-  const b=fs.writeBatch(db);
-  b.update(fs.doc(db,'orders',o.id),{status});
-  if(delta)(o.items||[]).forEach(it=>{if(products.some(p=>p.id==it.id))b.update(fs.doc(db,'products',String(it.id)),{stock:fs.increment(delta*it.qty)})});
-  await b.commit();
+}), {threshold: .12});
+
+function observe() { $$('.card').forEach(c => io.observe(c)); }
+
+function cartCount() { return Object.values(cart).reduce((a, b) => a + b, 0); }
+function updateBadges() {
+  const b = $('#cartCount');
+  b.textContent = cartCount();
+  b.classList.remove('bump');
+  void b.offsetWidth;
+  b.classList.add('bump');
+  $('#wishCount').textContent = wish.length;
 }
-async function deleteOrder(o){
-  if(CLOUD)await fs.deleteDoc(fs.doc(db,'orders',o.id));
-  else{orders=orders.filter(x=>x.id!==o.id);LS.set('mejt_orders',orders)}
+
+function addToCart(id, n = 1, src) {
+  const p = products.find(x => x.id == id);
+  if (!p) return;
+  const cur = cart[id] || 0;
+  if (cur + n > p.stock) {
+    toast('Nicht genügend Vorrat in der Schmiede');
+    return;
+  }
+  cart[id] = cur + n;
+  saveCart();
+  updateBadges();
+  flyToCart(src);
+  toast('In den Handels-Sack gelegt');
+  renderCart();
 }
-function watchOrders(on){
-  if(unsubOrders){unsubOrders();unsubOrders=null}
-  if(!CLOUD)return;
-  if(!on){orders=[];renderOrders();return}
-  ordFirst=true;
-  unsubOrders=fs.onSnapshot(fs.collection(db,'orders'),snap=>{
-    if(!ordFirst)snap.docChanges().forEach(ch=>{if(ch.type==='added'&&!ch.doc.metadata.hasPendingWrites)toast('Neue Bestellung eingegangen!')});
-    ordFirst=false;
-    orders=snap.docs.map(d=>({...d.data(),id:d.id}));
-    if(!admin){admin=true;setAdminUI();if(openAdminAfter){openAdminAfter=false;renderAdminRows();open('adminOv');toast('Willkommen, Admin');confetti()}}
-    renderOrders();
-  },err=>{
-    openAdminAfter=false;
-    if(admin){admin=false;setAdminUI();close('adminOv')}
-    orders=[];renderOrders();
-    if(err&&err.code!=='permission-denied'){console.error(err);toast('Bestellungen laden fehlgeschlagen')}
+
+function renderCart() {
+  const ids = Object.keys(cart).filter(id => products.find(p => p.id == id));
+  let tot = 0;
+  $('#cartBody').innerHTML = ids.length ? ids.map(id => {
+    const p = products.find(x => x.id == id), q = cart[id];
+    tot += p.price * q;
+    return `<div class="ci" data-cid="${id}"><img src="${esc(safeUrl(p.images[0]))}" onerror="this.src='${FALLBACK}'"><div class="info"><b>${esc(p.name)}</b><div style="color:var(--brass);font-weight:700">${eur(p.price)}</div><div class="qty"><button data-act="dec" data-id="${id}">-</button><b>${q}</b><button data-act="inc" data-id="${id}">+</button><button class="btn red sm2" data-act="rm" data-id="${id}" style="margin-left:auto;padding:4px 10px;border-radius:6px">Fort</button></div></div></div>`;
+  }).join('') : `<div class="empty"><h3>Dein Sack ist leer</h3></div>`;
+  $('#cartTotal').textContent = eur(tot);
+}
+
+function openCart() { renderCart(); $('#drawer').classList.add('show'); openModal('cartOv'); }
+function closeCart() { $('#drawer').classList.remove('show'); closeModal('cartOv'); }
+
+function showDetail(id) {
+  const p = products.find(x => x.id == id);
+  if (!p) return;
+  let qty = 1;
+  const imgs = p.images.length ? p.images : [FALLBACK];
+  $('#detailBox').innerHTML = `<button class="x" data-close="detailOv">X</button><div class="detail">
+    <div><div class="main-img"><img id="dMain" src="${esc(safeUrl(imgs[0]))}" onerror="this.src='${FALLBACK}'"></div><div class="thumbs">${imgs.map((u, i) => `<img class="${i ? '' : 'on'}" src="${esc(safeUrl(u))}" data-thumb="${esc(safeUrl(u))}" onerror="this.src='${FALLBACK}'">`).join('')}</div></div>
+    <div><div style="color:var(--copper);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px">Gilde: ${esc(p.cat)}</div><h2>${esc(p.name)}</h2>
+    <div class="stars">${stars(p.rating)} <b>${Number(p.rating).toFixed(1)}</b> <span>(${p.reviews} Gutachten)</span></div><hr style="margin:12px 0;border:none;border-top:1px solid var(--card-border)">
+    <div class="price">${eur(p.price)} ${p.old && p.old > p.price ? `<span class="old">${eur(p.old)}</span>` : ''}</div>
+    ${p.prime ? '<div class="prime">Gilden-Kurier (Kostenlose Lieferung)</div>' : ''}
+    <p style="margin:12px 0;line-height:1.5;color:var(--muted)">${esc(p.desc)}</p>
+    <div class="stock ${p.stock <= 5 ? 'low' : ''}">${p.stock <= 0 ? 'Vergriffen' : p.stock <= 5 ? `Nur noch ${p.stock} im Lager!` : 'Vorrätig'}</div>
+    <div class="qty">Anzahl: <button id="dm">-</button><b id="dq">1</b><button id="dp">+</button></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" id="dAdd" ${p.stock <= 0 ? 'disabled' : ''}>In den Sack</button><button class="btn o" id="dBuy" ${p.stock <= 0 ? 'disabled' : ''}>Sofort erwerben</button></div></div></div>`;
+  openModal('detailOv');
+  setTimeout(() => $$('#detailBox .starbox i').forEach(i => i.style.width = i.dataset.w), 100);   $$('#detailBox [data-thumb]').forEach(t => t.onclick = () => {
+    $('#dMain').src = t.dataset.thumb;     $$('#detailBox .thumbs img').forEach(x => x.classList.remove('on'));
+    t.classList.add('on');
   });
+  $('#dm').onclick = () => { qty = Math.max(1, qty - 1); $('#dq').textContent = qty; };
+  $('#dp').onclick = () => { qty = Math.min(p.stock, qty + 1); $('#dq').textContent = qty; };
+  $('#dAdd').onclick = () => addToCart(id, qty, $('#dMain'));
+  $('#dBuy').onclick = () => { addToCart(id, qty); closeModal('detailOv'); setTimeout(showCheckout, 300); };
 }
-function renderOrders(){
-  const n=openOrderCount();
-  $('#ordCount').textContent=n;$('#tabOrders').textContent='Bestellungen'+(n?` (${n})`:'');
-  const cnt=s=>s==='all'?orders.length:orders.filter(o=>o.status===s).length;
-  $('#ordChips').innerHTML=['open','shipped','cancelled','all'].map(s=>`<button class="chip ${s===ordFilter?'on':''}" data-ofilter="${s}">${s==='all'?'Alle':ORD_LABEL[s]}<b>${cnt(s)}</b></button>`).join('');
-  const l=orders.filter(o=>ordFilter==='all'||o.status===ordFilter).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
-  $('#ordList').innerHTML=l.length?l.map((o,i)=>{const c=o.customer||{};return `<div class="ord" style="animation-delay:${Math.min(i,8)*.05}s">
-    <div class="ordh"><span><b>${esc(o.orderNo)}</b> &middot; ${ordTime(o.createdAt)}</span><span class="st ${esc(o.status)}">${esc(ORD_LABEL[o.status]||o.status)}</span></div>
+
+function setAdminUI() {
+  $('#adminbar').classList.toggle('on', admin);
+  $('#accLabel').textContent = admin ? 'Meister' : 'Anmelden';   $$('.adminOnly').forEach(e => e.style.display = admin ? '' : 'none');
+}
+
+function renderAdminRows() {
+  $('#aRows').innerHTML = products.map((p, i) => `<tr style="animation-delay:${i * .03}s"><td><img src="${esc(safeUrl(p.images[0]))}" onerror="this.src='${FALLBACK}'"></td><td>${esc(p.name)}</td><td>${esc(p.cat)}</td><td>${eur(p.price)}</td><td>${p.stock}</td><td style="white-space:nowrap"><button class="btn sm2" data-act="aedit" data-id="${p.id}">Ändern</button> <button class="btn red sm2" data-act="adel" data-id="${p.id}">Löschen</button></td></tr>`).join('') || '<tr><td colspan="6">Keine Waren im Lager</td></tr>';
+}
+
+function tab(id) {
+  $$('.apane').forEach(p => p.classList.toggle('on', p.id === id));$$
+('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === id));
+}
+
+function clearForm() {
+  ['pId', 'pName', 'pPrice', 'pOld', 'pCat', 'pImgs', 'pDesc'].forEach(i => $('#' + i).value = '');
+  $('#pStock').value = 10;
+  $('#pRating').value = 4.5;
+  $('#pReviews').value = 12;
+  $('#pPrime').checked = true;
+  $('#pPrev').innerHTML = '';
+  $('#formTitle').textContent = 'Neue Ware schmieden';
+  $('#tabForm').textContent = 'Wahre schmieden';
+}
+
+function editProd(id) {
+  const p = products.find(x => x.id == id);
+  if (!p) return;
+  tab('aForm');
+  $('#pId').value = p.id;
+  $('#pName').value = p.name;
+  $('#pPrice').value = p.price;
+  $('#pOld').value = p.old || '';
+  $('#pCat').value = p.cat;
+  $('#pImgs').value = p.images.join('\n');
+  $('#pDesc').value = p.desc || '';
+  $('#pStock').value = p.stock;
+  $('#pRating').value = p.rating;
+  $('#pReviews').value = p.reviews;
+  $('#pPrime').checked = !!p.prime;
+  $('#formTitle').textContent = 'Ware bearbeiten';
+  $('#tabForm').textContent = 'Bearbeiten';
+  previewImgs();
+}
+
+function previewImgs() {
+  const u = $('#pImgs').value.split('\n').map(s => s.trim()).filter(Boolean);
+  $('#pPrev').innerHTML = u.map(x => `<img src="${esc(safeUrl(x))}" onerror="this.src='${FALLBACK}'">`).join('');
+}
+
+async function saveProd() {
+  const name = $('#pName').value.trim(), price = parseFloat($('#pPrice').value), c = $('#pCat').value.trim(), imgs = $('#pImgs').value.split('\n').map(s => s.trim()).filter(Boolean);
+  if (!name || isNaN(price) || !c || !imgs.length) {
+    toast('Name, Wert, Gilde und mind. 1 Bild-URL erforderlich');
+    $('#aForm').classList.remove('shake');
+    void $('#aForm').offsetWidth;
+    $('#aForm').classList.add('shake');
+    return;
+  }
+  if (imgs.some(u => !/^https?:\/\//i.test(u))) {
+    toast('Bild-URLs müssen mit http(s):// beginnen');
+    return;
+  }
+  const old = parseFloat($('#pOld').value);
+  const data = {
+    name,
+    price,
+    old: isNaN(old) ? null : old,
+    cat: c,
+    images: imgs,
+    desc: $('#pDesc').value.trim(),
+    rating: Math.min(5, Math.max(0, parseFloat($('#pRating').value) || 0)),
+    reviews: parseInt($('#pReviews').value) || 0,
+    stock: Math.max(0, parseInt($('#pStock').value) || 0),
+    prime: $('#pPrime').checked
+  };
+  const id = $('#pId').value;
+  const existing = id ? products.find(p => p.id == id) : null;
+  const prod = existing ? {...existing, ...data} : {id: String(Date.now()), t: Date.now(), ...data};
+  if (existing) Object.assign(existing, data);
+  else products.unshift(prod);
+  dbSave(prod);
+  toast(existing ? 'Ware aktualisiert' : 'Ware ins Lager gelegt');
+  clearForm();
+  refresh();
+  renderAdminRows();
+  tab('aList');
+}
+
+const ORD_LABEL = {open: 'Offen', shipped: 'Unterwegs', cancelled: 'Storniert'};
+const ordTime = t => new Date(t).toLocaleString('de-DE', {dateStyle: 'medium', timeStyle: 'short'});
+const openOrderCount = () => orders.filter(o => o.status === 'open').length;
+
+async function createOrder(order) {
+  orders.unshift({...order, id: String(Date.now())});
+  LS.set('mejt_orders', orders);
+}
+
+async function setOrderStatus(o, status) {
+  const delta = (o.status !== 'shipped' && status === 'shipped') ? -1 : (o.status === 'shipped' && status !== 'shipped') ? 1 : 0;
+  o.status = status;
+  if (delta) (o.items || []).forEach(it => {
+    const p = products.find(x => x.id == it.id);
+    if (p) p.stock = Math.max(0, p.stock + delta * it.qty);
+  });
+  LS.set('mejt_orders', orders);
+  saveProducts();
+}
+
+async function deleteOrder(o) {
+  orders = orders.filter(x => x.id !== o.id);
+  LS.set('mejt_orders', orders);
+}
+
+function renderOrders() {
+  const n = openOrderCount();
+  $('#ordCount').textContent = n;
+  $('#tabOrders').textContent = 'Aufträge' + (n ? ` (${n})` : '');
+  const cnt = s => s === 'all' ? orders.length : orders.filter(o => o.status === s).length;
+  $('#ordChips').innerHTML = ['open', 'shipped', 'cancelled', 'all'].map(s => `<button class="chip ${s === ordFilter ? 'on' : ''}" data-ofilter="${s}">${s === 'all' ? 'Alle' : ORD_LABEL[s]}<b>${cnt(s)}</b></button>`).join('');
+  const l = orders.filter(o => ordFilter === 'all' || o.status === ordFilter).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+  $('#ordList').innerHTML = l.length ? l.map((o, i) => {
+    const c = o.customer || {};
+    return `<div class="ord" style="animation-delay:${Math.min(i, 8) * .05}s">
+    <div class="ordh"><span><b>${esc(o.orderNo)}</b> - ${ordTime(o.createdAt)}</span><span class="st ${esc(o.status)}">${esc(ORD_LABEL[o.status] || o.status)}</span></div>
     <div class="ordb">
-      <div><h4>Lieferadresse</h4><div style="font-size:14px;line-height:1.5"><b>${esc(c.name)}</b><br>${esc(c.street)}<br>${esc(c.zip)} ${esc(c.city)}${c.email?`<br>${esc(c.email)}`:''}${c.phone?`<br>${esc(c.phone)}`:''}</div>${c.note?`<div class="note" style="margin:8px 0 0">${esc(c.note)}</div>`:''}</div>
-      <div><h4>Artikel</h4>${(o.items||[]).map(it=>`<div class="oi"><img src="${esc(safeUrl(it.image))}" onerror="this.src='${FALLBACK}'"><span>${esc(it.qty)}x${esc(it.name)}<br><small style="color:var(--muted)">${eur(it.price)}</small></span></div>`).join('')}<div style="margin-top:8px;font-size:16px"><b>Summe: ${eur(o.total)}</b></div><div style="font-size:12px;color:var(--muted)">${esc(o.pay||'')}</div></div>
+      <div><h4>Lieferanschrift</h4><div style="font-size:13px;line-height:1.5"><b>${esc(c.name)}</b><br>${esc(c.street)}<br>${esc(c.zip)} ${esc(c.city)}${c.email ? `<br>Post-Taube (Mail): ${esc(c.email)}` : ''}${c.phone ? `<br>Rufzeichen: ${esc(c.phone)}` : ''}</div>${c.note ? `<div class="note" style="margin:8px 0 0">Notiz: ${esc(c.note)}</div>` : ''}</div>
+      <div><h4>Waren</h4>${(o.items || []).map(it => `<div class="oi"><img src="${esc(safeUrl(it.image))}" onerror="this.src='${FALLBACK}'"><span>${esc(it.qty)}x${esc(it.name)}<br><small style="color:var(--muted)">${eur(it.price)}</small></span></div>`).join('')}<div style="margin-top:8px;font-size:15px"><b>Summe: ${eur(o.total)}</b></div><div style="font-size:11px;color:var(--muted)">${esc(o.pay || '')}</div></div>
     </div>
     <div class="orda">
-      ${o.status==='open'?`<button class="btn sm2" data-act="oship" data-id="${esc(o.id)}">Als versendet markieren</button>`:''}
-      ${o.status!=='cancelled'?`<button class="btn red sm2" data-act="ocancel" data-id="${esc(o.id)}">Stornieren</button>`:`<button class="btn sm2" data-act="oreopen" data-id="${esc(o.id)}">Wieder öffnen</button><button class="btn red sm2" data-act="odel" data-id="${esc(o.id)}">Löschen</button>`}
-      <button class="btn dark sm2" data-act="ocopy" data-id="${esc(o.id)}">Adresse kopieren</button>
-    </div></div>`}).join(''):`<div class="empty" style="padding:30px"><h3>Keine Bestellungen</h3></div>`;
-}
-function orderAction(act,id){
-  const o=orders.find(x=>x.id===id);if(!o)return;
-  const done=msg=>()=>{renderOrders();toast(msg)};
-  if(act==='oship')setOrderStatus(o,'shipped').then(done('Als versendet markiert')).catch(permErr);
-  if(act==='ocancel'&&confirm(`Bestellung ${o.orderNo} stornieren?`))setOrderStatus(o,'cancelled').then(done('Bestellung storniert')).catch(permErr);
-  if(act==='oreopen')setOrderStatus(o,'open').then(done('Wieder geöffnet')).catch(permErr);
-  if(act==='odel'&&confirm(`Bestellung ${o.orderNo} löschen?`))deleteOrder(o).then(done('Bestellung gelöscht')).catch(permErr);
-  if(act==='ocopy'){const c=o.customer||{};const t=`${c.name}\n${c.street}\n${c.zip} ${c.city}`;(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('Adresse kopiert')).catch(()=>toast('Kopieren fehlgeschlagen'))}
+      ${o.status === 'open' ? `<button class="btn sm2" data-act="oship" data-id="${esc(o.id)}">Als unterwegs markieren</button>` : ''}
+      ${o.status !== 'cancelled' ? `<button class="btn red sm2" data-act="ocancel" data-id="${esc(o.id)}">Stornieren</button>` : `<button class="btn sm2" data-act="oreopen" data-id="${esc(o.id)}">Wieder öffnen</button><button class="btn red sm2" data-act="odel" data-id="${esc(o.id)}">Löschen</button>`}
+      <button class="btn dark sm2" data-act="ocopy" data-id="${esc(o.id)}">Anschrift kopieren</button>
+    </div></div>`;
+  }).join('') : `<div class="empty" style="padding:30px"><h3>Keine Aufträge in dieser Ansicht</h3></div>`;
 }
 
-function refresh(){renderNav();renderCatCards();renderGrid()}
+function orderAction(act, id) {
+  const o = orders.find(x => x.id === id);
+  if (!o) return;
+  const done = msg => () => { renderOrders(); toast(msg); };
+  if (act === 'oship') setOrderStatus(o, 'shipped').then(done('Kurier losgeschickt'));
+  if (act === 'ocancel' && confirm(`Auftrag ${o.orderNo} wirklich stornieren?`)) setOrderStatus(o, 'cancelled').then(done('Auftrag storniert'));
+  if (act === 'oreopen') setOrderStatus(o, 'open').then(done('Auftrag wieder geöffnet'));
+  if (act === 'odel' && confirm(`Auftrag ${o.orderNo} endgültig löschen?`)) deleteOrder(o).then(done('Auftrag gelöscht'));
+  if (act === 'ocopy') {
+    const c = o.customer || {};
+    const t = `${c.name}\n${c.street}\n${c.zip} ${c.city}`;
+    (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => toast('Anschrift kopiert')).catch(() => toast('Kopieren fehlgeschlagen'));
+  }
+}
 
-document.addEventListener('click',e=>{
-  const c=e.target.closest('[data-close]');if(c)close(c.dataset.close);
-  if(e.target.classList.contains('ov')){if(e.target.id==='cartOv')closeCart();else e.target.classList.remove('show')}
-  const n=e.target.closest('[data-cat]');if(n){cat=n.dataset.cat;query='';$('#q').value='';refresh();$('#grid').scrollIntoView({behavior:'smooth',block:'start'})}
-  const g=e.target.closest('[data-go]');if(g){cat=g.dataset.go==='deals'?'__deals':'all';refresh();$('#grid').scrollIntoView({behavior:'smooth'})}
-  const t=e.target.closest('[data-tab]');if(t){if(t.dataset.tab==='aForm'&&!$('#pId').value)clearForm();tab(t.dataset.tab);if(t.dataset.tab==='aList')renderAdminRows();if(t.dataset.tab==='aOrders')renderOrders()}
-  const oc=e.target.closest('[data-ofilter]');if(oc){ordFilter=oc.dataset.ofilter;renderOrders()}
-  const a=e.target.closest('[data-act]');if(!a)return;const id=a.dataset.id,act=a.dataset.act;
-  if(act==='open')showDetail(id);
-  if(act==='add'){addToCart(id,1,a.closest('.card').querySelector('img'))}
-  if(act==='wish'){const n=String(id);wish=wish.includes(n)?wish.filter(x=>x!==n):[...wish,n];saveWish();updateBadges();renderGrid();toast(wish.includes(n)?'Zum Merkzettel hinzugefügt':'Vom Merkzettel entfernt')}
-  if(act==='inc')addToCart(id,1);
-  if(act==='dec'){cart[id]--;if(cart[id]<=0)delete cart[id];saveCart();updateBadges();renderCart()}
-  if(act==='rm'){const el=a.closest('.ci');el.classList.add('out');setTimeout(()=>{delete cart[id];saveCart();updateBadges();renderCart()},330)}
-  if(act==='aedit')editProd(id);
-  if(act[0]==='o'&&['oship','ocancel','oreopen','odel','ocopy'].includes(act))orderAction(act,id);
-  if(act==='adel'&&confirm('Produkt löschen?')){dbDelete(id).then(()=>{delete cart[id];saveCart();refresh();renderAdminRows();updateBadges();toast('Gelöscht')}).catch(permErr)}
+function refresh() { renderNav(); renderCatCards(); renderGrid(); }
+
+document.addEventListener('click', e => {
+  const c = e.target.closest('[data-close]');
+  if (c) closeModal(c.dataset.close);
+  if (e.target.classList.contains('ov')) {
+    if (e.target.id === 'cartOv') closeCart();
+    else e.target.classList.remove('show');
+  }
+  const n = e.target.closest('[data-cat]');
+  if (n) {
+    cat = n.dataset.cat;
+    query = '';
+    $('#q').value = '';
+    refresh();
+    $('#grid').scrollIntoView({behavior: 'smooth', block: 'start'});
+  }
+  const g = e.target.closest('[data-go]');
+  if (g) {
+    cat = g.dataset.go;
+    if (cat !== 'all' && !cats().includes(cat)) cat = 'all';
+    refresh();
+    $('#grid').scrollIntoView({behavior: 'smooth'});
+  }
+  const t = e.target.closest('[data-tab]');
+  if (t) {
+    if (t.dataset.tab === 'aForm' && !$('#pId').value) clearForm();
+    tab(t.dataset.tab);
+    if (t.dataset.tab === 'aList') renderAdminRows();
+    if (t.dataset.tab === 'aOrders') renderOrders();
+  }
+  const oc = e.target.closest('[data-ofilter]');
+  if (oc) {
+    ordFilter = oc.dataset.ofilter;
+    renderOrders();
+  }
+  const a = e.target.closest('[data-act]');
+  if (!a) return;
+  const id = a.dataset.id, act = a.dataset.act;
+  if (act === 'open') showDetail(id);
+  if (act === 'add') addToCart(id, 1, a.closest('.card').querySelector('img'));
+  if (act === 'wish') {
+    const n = String(id);
+    wish = wish.includes(n) ? wish.filter(x => x !== n) : [...wish, n];
+    saveWish();
+    updateBadges();
+    renderGrid();
+    toast(wish.includes(n) ? 'Zum Merkzettel hinzugefügt' : 'Vom Merkzettel entfernt');
+  }
+  if (act === 'inc') addToCart(id, 1);
+  if (act === 'dec') {
+    cart[id]--;
+    if (cart[id] <= 0) delete cart[id];
+    saveCart();
+    updateBadges();
+    renderCart();
+  }
+  if (act === 'rm') {
+    const el = a.closest('.ci');
+    el.classList.add('out');
+    setTimeout(() => {
+      delete cart[id];
+      saveCart();
+      updateBadges();
+      renderCart();
+    }, 330);
+  }
+  if (act === 'aedit') editProd(id);
+  if (act[0] === 'o' && ['oship', 'ocancel', 'oreopen', 'odel', 'ocopy'].includes(act)) orderAction(act, id);
+  if (act === 'adel' && confirm('Ware wirklich aus dem Lager entfernen?')) {
+    dbDelete(id).then(() => {
+      delete cart[id];
+      saveCart();
+      refresh();
+      renderAdminRows();
+      updateBadges();
+      toast('Gelöscht');
+    });
+  }
 });
-$('#searchForm').onsubmit=e=>{e.preventDefault();query=$('#q').value.trim();cat=$('#searchCat').value;refresh();$('#grid').scrollIntoView({behavior:'smooth'})};
-$('#sort').onchange=e=>{sortBy=e.target.value;renderGrid()};
-$('#logo').onclick=()=>{cat='all';query='';$('#q').value='';refresh();scrollTo({top:0,behavior:'smooth'})};
-$('#cartBtn').onclick=openCart;$('#closeCart').onclick=closeCart;
-$('#wishBtn').onclick=()=>{if(!wish.length){toast('Merkzettel ist leer');return}cat='all';query='';renderWish()};
-function renderWish(){const keep=products;products=currentShopProducts().filter(p=>wish.includes(p.id));renderGrid();$('#listTitle').textContent='Dein Merkzettel ('+products.length+')';products=keep;$('#grid').scrollIntoView({behavior:'smooth'})}
-$('#checkout').onclick=()=>{if(!cartCount()){toast('Warenkorb ist leer');return}closeCart();showCheckout()};
-$('#ordBtn').onclick=()=>{renderAdminRows();tab('aOrders');renderOrders();open('adminOv')};
-function cartItems(){return Object.keys(cart).map(id=>{const p=products.find(x=>x.id==id);return p?{p,q:cart[id]}:null}).filter(Boolean)}
-function showCheckout(){
-  const its=cartItems();if(!its.length){toast('Warenkorb ist leer');return}
-  if(CLOUD&&!auth.currentUser){pendingCheckout=true;showLogin('in','Bitte anmelden um fortzufahren.');return}
-  const cu=CLOUD?auth.currentUser:null,addrKey='mejt_addr'+(cu?'_'+cu.uid:'');
-  const tot=its.reduce((a,{p,q})=>a+p.price*q,0),sv=LS.get(addrKey,{});
-  $('#coBox').innerHTML=`<button class="x" data-close="coOv">&#10005;</button>
+
+$('#searchForm').onsubmit = e => {
+  e.preventDefault();
+  query = $('#q').value.trim();
+  cat = $('#searchCat').value;
+  refresh();
+  $('#grid').scrollIntoView({behavior: 'smooth'});
+};
+
+$('#sort').onchange = e => { sortBy = e.target.value; renderGrid(); };
+$('#logo').onclick = () => { cat = 'all'; query = ''; $('#q').value = ''; refresh(); scrollTo({top: 0, behavior: 'smooth'}); };
+$('#cartBtn').onclick = openCart;
+$('#closeCart').onclick = closeCart;
+$('#wishBtn').onclick = () => {
+  if (!wish.length) { toast('Dein Merkzettel ist leer'); return; }
+  cat = 'all';
+  query = '';
+  toast('Zeige Merkzettel');
+  renderWish();
+};
+
+function renderWish() {
+  const keep = products;
+  products = products.filter(p => wish.includes(p.id));
+  renderGrid();
+  $('#listTitle').textContent = 'Dein Merkzettel (' + products.length + ')';
+  products = keep;
+  $('#grid').scrollIntoView({behavior: 'smooth'});
+}
+
+$('#checkout').onclick = () => {
+  if (!cartCount()) { toast('Dein Handels-Sack ist leer'); return; }
+  closeCart();
+  showCheckout();
+};
+
+$('#ordBtn').onclick = () => { renderAdminRows(); tab('aOrders'); renderOrders(); openModal('adminOv'); };
+
+function cartItems() {
+  return Object.keys(cart).map(id => {
+    const p = products.find(x => x.id == id);
+    return p ? {p, q: cart[id]} : null;
+  }).filter(Boolean);
+}
+
+function showCheckout() {
+  const its = cartItems();
+  if (!its.length) { toast('Dein Handels-Sack ist leer'); return; }
+  const addrKey = 'mejt_addr';
+  const tot = its.reduce((a, {p, q}) => a + p.price * q, 0), sv = LS.get(addrKey, {});
+  $('#coBox').innerHTML = `<button class="x" data-close="coOv">X</button>
   <form id="coForm" class="chk" novalidate>
     <div>
-      <h2 style="margin-bottom:4px">Lieferadresse</h2>
-      <p style="font-size:13px;color:var(--muted);margin-bottom:12px">Wohin soll die Lieferung erfolgen?</p>
+      <h2 style="margin-bottom:4px;color:var(--brass)">Lieferanschrift</h2>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Wohin soll der Kurier die Waren bringen?</p>
       <div class="f"><label>Vor- und Nachname *</label><input id="cName" autocomplete="name" maxlength="80"></div>
-      <div class="f"><label>Straße und Hausnummer *</label><input id="cStreet" autocomplete="street-address" maxlength="100"></div>
-      <div class="row2"><div class="f"><label>PLZ *</label><input id="cZip" inputmode="numeric" maxlength="5" autocomplete="postal-code"></div><div class="f"><label>Ort *</label><input id="cCity" autocomplete="address-level2" maxlength="60"></div></div>
-      <div class="row2"><div class="f"><label>E-Mail (optional)</label><input id="cMail" type="email" maxlength="100" autocomplete="email"></div><div class="f"><label>Telefon (optional)</label><input id="cTel" type="tel" maxlength="30" autocomplete="tel"></div></div>
-      <div class="f"><label>Hinweis (optional)</label><textarea id="cNote" rows="2" maxlength="300"></textarea></div>
-      <label style="font-size:13px;display:flex;gap:8px;align-items:flex-start"><input type="checkbox" id="cOk" style="margin-top:3px"> <span>Ich stimme der Speicherung meiner Daten zur Bestellabwicklung zu. *</span></label>
+      <div class="f"><label>Strasse und Hausnummer *</label><input id="cStreet" autocomplete="street-address" maxlength="100"></div>
+      <div class="row2"><div class="f"><label>Postleitzahl *</label><input id="cZip" inputmode="numeric" maxlength="5" autocomplete="postal-code"></div><div class="f"><label>Ort / Burg *</label><input id="cCity" autocomplete="address-level2" maxlength="60"></div></div>
+      <div class="row2"><div class="f"><label>Post-Taube (E-Mail optional)</label><input id="cMail" type="email" maxlength="100" autocomplete="email"></div><div class="f"><label>Rufzeichen (Tel optional)</label><input id="cTel" type="tel" maxlength="30" autocomplete="tel"></div></div>
+      <div class="f"><label>Notiz für den Kurier (optional)</label><textarea id="cNote" rows="2" maxlength="300"></textarea></div>
+      <label style="font-size:12px;display:flex;gap:8px;align-items:flex-start"><input type="checkbox" id="cOk" style="margin-top:3px"> <span>Ich stimme zu, dass meine Anschrift zur Lieferung gespeichert wird. *</span></label>
     </div>
     <div>
-      <h2 style="margin-bottom:12px">Deine Bestellung</h2>
-      <div class="sum">${its.map(({p,q})=>`<div><span>${q}x ${esc(p.name)}</span><span>${eur(p.price*q)}</span></div>`).join('')}<hr style="margin:8px 0;border:none;border-top:1px solid #ddd"><div style="font-size:16px"><b>Gesamt</b><b>${eur(tot)}</b></div></div>
-      <p style="font-size:13px;color:var(--muted);margin:10px 0">Zahlungsart: Bezahlung bei Lieferung</p>
-      <button class="btn o" style="width:100%" type="submit" id="cSubmit">Zahlungspflichtig bestellen</button>
+      <h2 style="margin-bottom:12px;color:var(--brass)">Deine Bestellung</h2>
+      <div class="sum">${its.map(({p, q}) => `<div><span>${q}x ${esc(p.name)}</span><span>${eur(p.price * q)}</span></div>`).join('')}<hr style="margin:8px 0;border:none;border-top:1px solid var(--card-border)"><div style="font-size:15px"><b>Gesamt</b><b>${eur(tot)}</b></div></div>
+      <p style="font-size:12px;color:var(--muted);margin:10px 0">Zahlungsweise: Bezahlung bei Lieferung an der Haustür</p>
+      <button class="btn o" style="width:100%" type="submit" id="cSubmit">Verbindlich bestellen</button>
     </div>
   </form>`;
-  [['cName','name'],['cStreet','street'],['cZip','zip'],['cCity','city'],['cMail','email'],['cTel','phone']].forEach(([i,k])=>{$('#'+i).value=sv[k]||''});
-  if(cu){if(!$('#cName').value)$('#cName').value=cu.displayName||'';if(!$('#cMail').value)$('#cMail').value=cu.email||''}
-  $('#coForm').onsubmit=async e=>{
+  [['cName', 'name'], ['cStreet', 'street'], ['cZip', 'zip'], ['cCity', 'city'], ['cMail', 'email'], ['cTel', 'phone']].forEach(([i, k]) => { $('#' + i).value = sv[k] || ''; });
+  
+  $('#coForm').onsubmit = async e => {
     e.preventDefault();
-    const v=id=>$('#'+id).value.trim();
-    const cust={name:v('cName'),street:v('cStreet'),zip:v('cZip'),city:v('cCity'),email:v('cMail'),phone:v('cTel'),note:v('cNote')};
-    const bad=(id,msg)=>{const el=$('#'+id);el.focus();el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake');toast(msg)};
-    if(cust.name.length<2)return bad('cName','Bitte Namen eingeben');
-    if(cust.street.length<3||!/\d/.test(cust.street))return bad('cStreet','Bitte gültige Straße eingeben');
-    if(!/^\d{4,5}$/.test(cust.zip))return bad('cZip','Bitte gültige PLZ eingeben');
-    if(cust.city.length<2)return bad('cCity','Bitte Ort eingeben');
-    if(!$('#cOk').checked)return bad('cOk','Bitte den Datenschutzbedingungen zustimmen');
-    const cur=cartItems();
-    if(!cur.length){toast('Warenkorb ist leer');close('coOv');return}
-    if(CLOUD&&!auth.currentUser){close('coOv');pendingCheckout=true;showLogin('in','Sitzung abgelaufen – bitte erneut anmelden.');return}
-    const over=cur.find(({p,q})=>q>p.stock);
-    if(over){toast(`„${over.p.name}" nicht in dieser Menge verfügbar`);return}
-    const total=+cur.reduce((a,{p,q})=>a+p.price*q,0).toFixed(2);
-    const order={orderNo:'MEJT-'+Date.now().toString(36).toUpperCase().slice(-5)+Math.random().toString(36).slice(2,5).toUpperCase(),
-      items:cur.map(({p,q})=>({id:String(p.id),name:p.name,price:p.price,qty:q,image:p.images[0]||''})),
-      total,customer:cust,status:'open',createdAt:Date.now(),pay:'Bezahlung bei Lieferung',...(CLOUD?{uid:auth.currentUser.uid}:{})};
-    const btn=$('#cSubmit');btn.disabled=true;btn.textContent='Wird gesendet...';
-    try{
+    const v = id => $('#' + id).value.trim();
+    const cust = {name: v('cName'), street: v('cStreet'), zip: v('cZip'), city: v('cCity'), email: v('cMail'), phone: v('cTel'), note: v('cNote')};
+    const bad = (id, msg) => {
+      const el = $('#' + id);
+      el.focus();
+      el.classList.remove('shake');
+      void el.offsetWidth;
+      el.classList.add('shake');
+      toast(msg);
+    };
+    if (cust.name.length < 2) return bad('cName', 'Bitte deinen Namen eingeben');
+    if (cust.street.length < 3 || !/\d/.test(cust.street)) return bad('cStreet', 'Bitte Strasse mit Hausnummer eingeben');
+    if (!/^\d{4,5}$/.test(cust.zip)) return bad('cZip', 'Bitte eine gültige PLZ eingeben');
+    if (cust.city.length < 2) return bad('cCity', 'Bitte den Ort eingeben');
+    if (cust.email && !$('#cMail').checkValidity()) return bad('cMail', 'Bitte eine gültige E-Mail eingeben');
+    if (!$('#cOk').checked) return bad('cOk', 'Bitte der Speicherung zustimmen');
+    const cur = cartItems();
+    if (!cur.length) { toast('Dein Sack ist leer'); closeModal('coOv'); return; }
+    const over = cur.find(({p, q}) => q > p.stock);
+    if (over) { toast(`"${over.p.name}" ist nicht mehr in dieser Menge verfügbar`); return; }
+    const total = +cur.reduce((a, {p, q}) => a + p.price * q, 0).toFixed(2);
+    const order = {
+      orderNo: 'MEJT-' + Date.now().toString(36).toUpperCase().slice(-5) + Math.random().toString(36).slice(2, 5).toUpperCase(),
+      items: cur.map(({p, q}) => ({id: String(p.id), name: p.name, price: p.price, qty: q, image: p.images[0] || ''})),
+      total,
+      customer: cust,
+      status: 'open',
+      createdAt: Date.now(),
+      pay: 'Bezahlung bei Lieferung'
+    };
+    const btn = $('#cSubmit');
+    btn.disabled = true;
+    btn.textContent = 'Wird übermittelt...';
+    try {
       await createOrder(order);
-      LS.set(addrKey,{name:cust.name,street:cust.street,zip:cust.zip,city:cust.city,email:cust.email,phone:cust.phone});
-      cart={};saveCart();updateBadges();renderCart();showOrderDone(order);confetti();
-    }catch(err){
-      console.error(err);btn.disabled=false;btn.textContent='Zahlungspflichtig bestellen';
-      toast('Bestellung konnte nicht gesendet werden.');
+      LS.set(addrKey, {name: cust.name, street: cust.street, zip: cust.zip, city: cust.city, email: cust.email, phone: cust.phone});
+      cart = {};
+      saveCart();
+      updateBadges();
+      renderCart();
+      showOrderDone(order);
+      confetti();
+    } catch (err) {
+      console.error(err);
+      btn.disabled = false;
+      btn.textContent = 'Verbindlich bestellen';
+      toast('Auftrag konnte nicht übermittelt werden');
     }
   };
-  open('coOv');setTimeout(()=>$('#cName').focus(),150);
-}
-function showOrderDone(o){
-  const c=o.customer;
-  $('#coBox').innerHTML=`<button class="x" data-close="coOv">&#10005;</button><div style="padding:34px 26px;text-align:center">
-    <div class="okc">&#10003;</div><h2>Vielen Dank für deine Bestellung, ${esc(c.name.split(' ')[0])}!</h2>
-    <p style="margin:8px 0;color:var(--muted)">Bestellnummer: <b style="color:var(--text)">${esc(o.orderNo)}</b></p>
-    <div class="sum" style="text-align:left;max-width:420px;margin:16px auto"><div style="block"><b>Lieferadresse:</b><br>${esc(c.name)}<br>${esc(c.street)}<br>${esc(c.zip)} ${esc(c.city)}</div><hr style="margin:8px 0;border:none;border-top:1px solid #ddd"><div><span>Gesamt</span><b>${eur(o.total)}</b></div></div>
-    <button class="btn o" data-close="coOv">Weiter einkaufen</button></div>`;
+  openModal('coOv');
+  setTimeout(() => $('#cName').focus(), 150);
 }
 
-$('#accBtn').onclick=()=>{
-  if(admin){renderAdminRows();open('adminOv');return}
-  if(CLOUD&&auth.currentUser){const u=auth.currentUser;$('#accInfo').innerHTML=`Angemeldet als<br><b>${esc(u.displayName||'Kunde')}</b><br>${esc(u.email)}`;open('accOv');return}
+function showOrderDone(o) {
+  const c = o.customer;
+  $('#coBox').innerHTML = `<button class="x" data-close="coOv">X</button><div style="padding:30px 24px;text-align:center">
+    <div class="okc">✓</div><h2 style="color:var(--brass)">Hab Dank für deine Bestellung, ${esc(c.name.split(' ')[0])}!</h2>
+    <p style="margin:8px 0;color:var(--muted)">Auftragsnummer: <b style="color:#fff">${esc(o.orderNo)}</b></p>
+    <div class="sum" style="text-align:left;max-width:420px;margin:16px auto"><div><b>Lieferung an:</b><br>${esc(c.name)}<br>${esc(c.street)}<br>${esc(c.zip)} ${esc(c.city)}</div><hr style="margin:8px 0;border:none;border-top:1px solid var(--card-border)"><div><span>Gesamt (Bezahlung bei Lieferung)</span><b>${eur(o.total)}</b></div></div>
+    <button class="btn o" data-close="coOv">Weiterstöbern</button></div>`;
+}
+
+$('#accBtn').onclick = () => {
+  if (admin) { renderAdminRows(); openModal('adminOv'); return; }
   showLogin('in');
 };
-$('#lToggle').onclick=e=>{e.preventDefault();setAuthMode(authMode==='in'?'up':'in');$(authMode==='up'?'#lName':'#lUser').focus()};
-$('#lForgot').onclick=e=>{e.preventDefault();forgotPw()};
-$('#accLogout').onclick=()=>au.signOut(auth).then(()=>{close('accOv');toast('Abgemeldet')});
-async function login(){if(CLOUD)return cloudLogin();if($('#lUser').value===creds.u&&hash($('#lPass').value)===creds.h){admin=true;sessionStorage.setItem('mejt_admin','1');setAdminUI();close('loginOv');renderAdminRows();open('adminOv');toast('Willkommen, Admin');confetti()}else{const b=$('#loginBox');b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');toast('Falsche Zugangsdaten')}}
-$('#doLogin').onclick=login;$('#lPass').onkeydown=e=>{if(e.key==='Enter')login()};$('#lUser').onkeydown=e=>{if(e.key==='Enter')$('#lPass').focus()};
-$('#logout').onclick=()=>{if(CLOUD){au.signOut(auth).then(()=>{close('adminOv');toast('Abgemeldet')});return}admin=false;sessionStorage.removeItem('mejt_admin');setAdminUI();close('adminOv');toast('Abgemeldet')};
-$('#saveProd').onclick=saveProd;$('#resetForm').onclick=clearForm;$('#pImgs').oninput=previewImgs;
-$('#saveCred').onclick=()=>{const u=$('#nUser').value.trim(),p=$('#nPass').value;if(!u||p.length<4){toast('Benutzername & Passwort (min. 4 Zeichen)');return}creds={u,h:hash(p)};LS.set('mejt_creds',creds);$('#nUser').value=$('#nPass').value='';toast('Zugangsdaten gespeichert')};
-$('#exportBtn').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(products,null,2)],{type:'application/json'}));a.download='products.json';a.click();toast('products.json heruntergeladen')};
-$('#importBtn').onclick=()=>$('#importFile').click();
-$('#importFile').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=async()=>{let j;try{j=JSON.parse(r.result);if(!Array.isArray(j))throw 0}catch(x){toast('Ungültige Datei');return}try{await dbReplaceAll(normalize(j));refresh();renderAdminRows();toast('Import erfolgreich')}catch(x){permErr(x)}};r.readAsText(f)};
-$('#resetAll').onclick=async()=>{if(confirm('Alle Produkte durch Standardwerte ersetzen?')){try{await dbReplaceAll(normalize(JSON.parse(JSON.stringify(DEFAULTS))));refresh();renderAdminRows();toast('Standardprodukte geladen')}catch(e){permErr(e)}}};
-$('#resetPw').onclick=async()=>{try{await au.sendPasswordResetEmail(auth,auth.currentUser.email);toast('E-Mail zum Ändern des Passworts gesendet')}catch(e){permErr(e)}};
-$('#backTop').onclick=()=>scrollTo({top:0,behavior:'smooth'});$('#toTop').onclick=$('#backTop').onclick;
 
-addEventListener('scroll',()=>{$('#toTop').classList.toggle('show',scrollY>500);$('#hero').style.backgroundPositionY=scrollY*.3+'px'}); addEventListener('keydown',e=>{if(e.key==='Escape'){['detailOv','loginOv','adminOv','coOv','accOv','shopSelectorOv'].forEach(close);closeCart()}});  let si=0,st;const slides=$$('.slide');$('#dots').innerHTML=slides.map((_,i)=>`<i data-i="${i}"></i>`).join('');
-function go(i){si=(i+slides.length)%slides.length;slides.forEach((s,k)=>s.classList.toggle('on',k===si));$$('#dots i').forEach((d,k)=>d.classList.toggle('on',k===si));clearInterval(st);st=setInterval(()=>go(si+1),5500)}
-$('#prev').onclick=()=>go(si-1);$('#next').onclick=()=>go(si+1);$('#dots').onclick=e=>{if(e.target.dataset.i)go(+e.target.dataset.i)};
-for(let i=0;i<14;i++){const b=document.createElement('span'),s=20+Math.random()*60;b.style.cssText=`left:${Math.random()*100}%;width:${s}px;height:${s}px;animation-duration:${6+Math.random()*8}s;animation-delay:${-Math.random()*10}s`;$('#bubbles').appendChild(b)}
+function showLogin(mode, msg) {
+  $('#lMsg').textContent = msg || '';
+  $('#lMsg').style.display = msg ? '' : 'none';
+  $('#lUser').value = '';
+  $('#lPass').value = '';
+  openModal('loginOv');
+  setTimeout(() => $('#lUser').focus(), 100);
+}
 
-function tick(){const n=new Date(),e=new Date(n);e.setHours(23,59,59,999);const d=e-n,p=x=>String(Math.floor(x)).padStart(2,'0');$('#th').textContent=p(d/36e5);$('#tm').textContent=p(d\%36e5/6e4);$('#ts').textContent=p(d%6e4/1e3)}
-setInterval(tick,1000);tick();
-
-$('#yr').textContent=new Date().getFullYear();
-(async()=>{
-  if(CLOUD){
-    $('#loginHint').style.display='none';$('#lUserLbl').textContent='E-Mail';$('#lUser').type='email';$('#lUser').autocomplete='email';$('#lSwitch').style.display='';setAuthMode('in');
-    $('#noteLocal').style.display='none';$('#noteCloud').style.display='';
-    $('#credLocal').style.display='none';$('#credCloud').style.display='';
-    $('#resetAll').textContent='Beispielprodukte hochladen';
-    au.onAuthStateChanged(auth,u=>{user=u;admin=false;setAdminUI();if(!u){openAdminAfter=false;close('adminOv');close('accOv')}watchOrders(!!u)});
+async function login() {
+  if ($('#lUser').value === creds.u && hash($('#lPass').value) === creds.h) {
+    admin = true;
+    sessionStorage.setItem('mejt_admin', '1');
+    setAdminUI();
+    closeModal('loginOv');
+    renderAdminRows();
+    openModal('adminOv');
+    toast('Sei gegrüßt, Meister!');
+    confetti();
+  } else {
+    const b = $('#loginBox');
+    b.classList.remove('shake');
+    void b.offsetWidth;
+    b.classList.add('shake');
+    toast('Falsches Siegel oder Kennung');
   }
-  if(!CLOUD)orders=LS.get('mejt_orders',[]);
-  await loadProducts();started=true;
-  checkShopSelected();
-  refresh();updateBadges();setAdminUI();renderCart();renderOrders();go(0);setTimeout(()=>$('#loader').classList.add('hide'),900);
+}
+
+$('#doLogin').onclick = login;
+$('#lPass').onkeydown = e => { if (e.key === 'Enter') login(); };
+$('#lUser').onkeydown = e => { if (e.key === 'Enter') $('#lPass').focus(); };
+$('#logout').onclick = () => {
+  admin = false;
+  sessionStorage.removeItem('mejt_admin');
+  setAdminUI();
+  closeModal('adminOv');
+  toast('Abgemeldet');
+};
+
+$('#saveProd').onclick = saveProd;
+$('#resetForm').onclick = clearForm;
+$('#pImgs').oninput = previewImgs;
+
+$('#saveBanner').onclick = () => {
+  bannerConfig = {
+    text: $('#bText').value.trim() || bannerConfig.text,
+    bg: $('#bBg').value,
+    color: $('#bColor').value,
+    popTitle: $('#popTitle').value.trim() || "Willkommen!",
+    popText: $('#popDesc').value.trim() || ""
+  };
+  LS.set('mejt_banner', bannerConfig);
+  applyBannerSettings();
+  toast('Banner & Aushang aktualisiert');
+};
+
+$('#saveCred').onclick = () => {
+  const u = $('#nUser').value.trim(), p = $('#nPass').value;
+  if (!u || p.length < 4) { toast('Kennung & Siegel (mind. 4 Zeichen)'); return; }
+  creds = {u, h: hash(p)};
+  LS.set('mejt_creds', creds);
+  $('#nUser').value = $('#nPass').value = '';
+  toast('Neues Siegel gespeichert');
+};
+
+$('#exportBtn').onclick = () => {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(products, null, 2)], {type: 'application/json'}));
+  a.download = 'products.json';
+  a.click();
+  toast('Lagerliste heruntergeladen');
+};
+
+$('#importBtn').onclick = () => $('#importFile').click();
+$('#importFile').onchange = e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = async () => {
+    let j;
+    try {
+      j = JSON.parse(r.result);
+      if (!Array.isArray(j)) throw 0;
+    } catch (x) {
+      toast('Ungültige Schriftrolle');
+      return;
+    }
+    dbReplaceAll(normalize(j));
+    refresh();
+    renderAdminRows();
+    toast('Lager erfolgreich importiert');
+  };
+  r.readAsText(f);
+};
+
+$('#resetAll').onclick = () => {
+  if (confirm('Alle Waren durch Standard-Artefakte ersetzen?')) {
+    dbReplaceAll(normalize(JSON.parse(JSON.stringify(DEFAULTS))));
+    refresh();
+    renderAdminRows();
+    toast('Standard-Waren geladen');
+  }
+};
+
+$('#backTop').onclick = () => scrollTo({top: 0, behavior: 'smooth'});
+$('#toTop').onclick = $('#backTop').onclick;
+
+addEventListener('scroll', () => {
+  $('#toTop').classList.toggle('show', scrollY > 500);
+});
+
+addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    ['detailOv', 'loginOv', 'adminOv', 'coOv', 'accOv', 'welcomeOv'].forEach(closeModal);
+    closeCart();
+  }
+});
+
+function tick() {
+  const n = new Date(), e = new Date(n);
+  e.setHours(23, 59, 59, 999);
+  const d = e - n, p = x => String(Math.floor(x)).padStart(2, '0');
+  $('#th').textContent = p(d / 36e5);
+  $('#tm').textContent = p(d % 36e5 / 6e4);
+  $('#ts').textContent = p(d % 6e4 / 1e3);
+}
+
+setInterval(tick, 1000);
+tick();
+
+$('#yr').textContent = new Date().getFullYear();
+
+// Schwebende Funken generieren
+for (let i = 0; i < 18; i++) {
+  const s = document.createElement('span');
+  const size = 3 + Math.random() * 5;
+  s.style.cssText = `left:${Math.random() * 100}%;width:${size}px;height:${size}px;animation-duration:${5 + Math.random() * 7}s;animation-delay:${-Math.random() * 10}s`;
+  $('#embers').appendChild(s);
+}
+
+(async () => {
+  applyBannerSettings();
+  orders = LS.get('mejt_orders', []);
+  await loadProducts();
+  started = true;
+  refresh();
+  updateBadges();
+  setAdminUI();
+  renderCart();
+  renderOrders();
+  setTimeout(() => $('#loader').classList.add('hide'), 900);
 })();
 </script>
 </body>
