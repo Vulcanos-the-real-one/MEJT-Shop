@@ -5,8 +5,8 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const eur=n=>Number(n).toLocaleString('de-DE',{style:'currency',currency:'EUR'});
 const fmtNum=n=>Number(n).toLocaleString('de-DE',{maximumFractionDigits:2});
 const clone=o=>JSON.parse(JSON.stringify(o));
-const clr=(c,d)=>/^#[0-9a-f]{6}$/i.test(c||'')?c:d;
-const okUrl=u=>/^(https?:\/\/|data:image\/)/i.test(u||'');
+const clr=(c,d)=>c&&c.startsWith('#')?c:d;
+const okUrl=u=>typeof u==='string'&&(u.startsWith('http://')||u.startsWith('https://')||u.startsWith('data:image/'));
 
 /* ================= Icons (SVG) ================= */
 const S=(p,f='none')=>`<svg class="i" viewBox="0 0 24 24" fill="${f}" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
@@ -273,7 +273,7 @@ async function cloudLogin(){
     close('loginOv');setAdminUI();
     if(pendingCheckout){pendingCheckout=false;toast('Angemeldet, weiter zur Kasse');setTimeout(showCheckout,300)}
     else toast(reg?'Konto erstellt, willkommen!':'Willkommen zurück');
-  }catch(e){console.error(e);openAdminAfter=false;bad(AUTH_ERR[e&&e.code]||('Fehler: '+((e&&e.message)||e)))}
+  }catch(e){console.error(e);openAdminAfter=false;bad('Anmeldefehler: '+((e&&e.message)||e))}
   finally{btn.disabled=false}
 }
 async function forgotPw(){
@@ -603,7 +603,7 @@ function renderOrders(){
   $('#ordShopChips').innerHTML=[['all','Alle Shops'],['mc','Minecraft'],['irl','IRL']].map(([k,t])=>`<button class="chip ${k===ordShop?'on':''}" data-oshop="${k}">${t}</button>`).join('');
   const cnt=s=>orders.filter(o=>inShop(o)&&(s==='all'||o.status===s)).length;
   $('#ordChips').innerHTML=['open','shipped','cancelled','all'].map(s=>`<button class="chip ${s===ordFilter?'on':''}" data-ofilter="${s}">${s==='all'?'Alle':ORD_LABEL[s]}<b>${cnt(s)}</b></button>`).join('');
-  const l=orders.filter(o=>inShop(o)&&(ordFilter==='all'||o.status===ordFilter)).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  const l=orders.filter(o=>inShop(o)&&(ordFilter==='all'||o.status==='cancelled'?o.status==='cancelled':o.status===ordFilter)).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
   $('#ordList').innerHTML=l.length?l.map((o,i)=>{const s=oShop(o);return `<div class="ord" style="animation-delay:${Math.min(i,8)*.05}s">
     <div class="ordh"><span><b>${esc(o.orderNo)}</b> · ${ordTime(o.createdAt)} <span class="sb ${s}">${s==='mc'?'MINECRAFT':'IRL'}</span></span><span class="st ${esc(o.status)}">${esc(ORD_LABEL[o.status]||o.status)}</span></div>
     <div class="ordb">
@@ -611,7 +611,7 @@ function renderOrders(){
       <div><h4>Artikel</h4>${(o.items||[]).map(it=>`<div class="oi"><img src="${esc(safeUrl(it.image))}" onerror="this.src='${FALLBACK}'"><span>${esc(it.qty)}×${esc(it.name)}<br><small class="muted">${money(it.price,s)}</small></span></div>`).join('')}<div style="margin-top:8px;font-size:16px"><b>Summe: ${money(o.total,s)}</b></div><div style="font-size:12px;color:var(--muted)">${esc(o.pay||'')}</div></div>
     </div>
     <div class="orda">
-      ${o.status==='open'?`<button class="btn sm2" data-act="oship" data-id="${esc(o.id)}"><span data-ic="check"></span> Als versendet markieren</button>`:''}
+      ${o.status==='open'?`<button class="btn sm2" data-act="oship" data-id="${esc(p.id)}"><span data-ic="check"></span> Als versendet markieren</button>`:''}
       ${o.status!=='cancelled'?`<button class="btn red sm2" data-act="ocancel" data-id="${esc(o.id)}"><span data-ic="x"></span> Stornieren</button>`:`<button class="btn sm2" data-act="oreopen" data-id="${esc(o.id)}"><span data-ic="undo"></span> Wieder öffnen</button><button class="btn red sm2" data-act="odel" data-id="${esc(o.id)}"><span data-ic="trash"></span> Löschen</button>`}
       <button class="btn dark sm2" data-act="ocopy" data-id="${esc(o.id)}"><span data-ic="copy"></span> ${s==='mc'?'TP-Befehl kopieren':'Adresse kopieren'}</button>
     </div></div>`}).join(''):`<div class="empty" style="padding:30px"><div class="big"><span data-ic="box"></span></div><h3>Keine Bestellungen in dieser Ansicht</h3></div>`;
