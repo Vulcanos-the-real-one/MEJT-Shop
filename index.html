@@ -20,10 +20,10 @@ a{color:var(--link);text-decoration:none}
 #loader .logo span{color:var(--orange)}
 #loader .bar{width:220px;height:4px;background:#1f2937;border-radius:4px;margin-top:20px;overflow:hidden}
 #loader .bar i{display:block;height:100%;width:40%;background:var(--orange);animation:loadBar 1s infinite ease-in-out;box-shadow:0 0 10px var(--orange)}
-@keyframes loadBar{0%{transform:translateX(-100%)}100%{transform:translateX(350%)} }
+@keyframes loadBar{0%{transform:translateX(-100%)}100%{transform:translateX(350%)}}
 @keyframes pulseLogo{0%{transform:scale(1);text-shadow:0 0 10px rgba(245,158,11,0)}100%{transform:scale(1.05);text-shadow:0 0 25px var(--orange-glow)}}
 
-/* Shop Selector Modal (Am Anfang) */
+/* Shop Selector Modal */
 .shop-selector-overlay{position:fixed;inset:0;background:rgba(3,7,18,0.85);backdrop-filter:blur(10px);z-index:9000;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .5s}
 .shop-selector-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:40px;width:100%;max-width:700px;text-align:center;box-shadow:0 25px 50px rgba(0,0,0,.6);animation:popScale .6s cubic-bezier(.2,1.2,.3,1)}
 .shop-selector-card h1{font-size:32px;margin-bottom:10px;background:linear-gradient(90deg,#fff,var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
@@ -49,7 +49,6 @@ header{background:var(--navy);color:#fff;position:sticky;top:0;z-index:100;box-s
 @keyframes shine{to{background-position:200% center}}
 .brand small{font-size:12px;-webkit-text-fill-color:var(--orange)}
 
-/* Shop Switcher im Header */
 .shop-switch{background:#111827;border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:13px;font-weight:600;color:var(--orange);cursor:pointer;transition:.2s;display:flex;align-items:center;gap:6px}
 .shop-switch:hover{border-color:var(--orange)}
 
@@ -64,9 +63,6 @@ header{background:var(--navy);color:#fff;position:sticky;top:0;z-index:100;box-s
 .hbtn:hover{border-color:var(--border);background:#1f2937;transform:translateY(-1px)}
 .hbtn b{display:block;font-size:14px}
 .cartbtn{display:flex;align-items:center;gap:8px}
-.badge{position:absolute;top:-4px;right:-4px;background:var(--orange);color:#030712;border-radius:50%;min-width:20px;height:20px;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 0 10px var(--orange-glow)}
-.badge.bump{animation:bump .4s}
-@keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.8) rotate(10deg)}100%{transform:scale(1)}}
 
 nav{background:var(--navy2);display:flex;gap:6px;padding:6px 16px;overflow-x:auto;scrollbar-width:none;border-top:1px solid var(--border)}
 nav button{background:none;color:var(--muted);padding:8px 14px;font-size:14px;white-space:nowrap;border:1px solid transparent;border-radius:6px;transition:.2s;font-weight:600}
@@ -456,7 +452,6 @@ td img{width:48px;height:48px;object-fit:cover;border-radius:6px;background:#111
 <script type="module">
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 
-/* Firebase Config */
 const firebaseConfig = {
   apiKey: "AIzaSyDtfD97Kz9izndoNi8Es5ryt98Uk4fdB_M",
   authDomain: "mejtzon.firebaseapp.com",
@@ -471,11 +466,13 @@ let CLOUD=!String(firebaseConfig.apiKey).startsWith("DEIN_");
 let db,auth,fs,au;
 if(CLOUD){
   try{
-    const V="10.12.2",B="https://www.gstatic.com/firebasejs/"+V+"/";
-    const [appM,fsM,auM]=await Promise.all([import(B+"firebase-app.js"),import(B+"firebase-firestore.js"),import(B+"firebase-auth.js")]);
-    const app=appM.initializeApp(firebaseConfig);
+    const B="https://www.gstatic.com/firebasejs/10.12.2/";
+    const appM = await import(B + "firebase-app.js");
+    const fsM = await import(B + "firebase-firestore.js");
+    const auM = await import(B + "firebase-auth.js");
+    const app = appM.initializeApp(firebaseConfig);
     db=fsM.getFirestore(app);auth=auM.getAuth(app);fs=fsM;au=auM;
-  }catch(e){CLOUD=false}
+  }catch(e){console.error(e);CLOUD=false}
 }
 const LS={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 const img=(s)=>`https://picsum.photos/seed/${s}/600/600`;
@@ -490,7 +487,7 @@ const DEFAULTS=[
 ];
 
 let products=[], cart=LS.get('mejt_cart',{}), wish=LS.get('mejt_wish',[]).map(String), cat='all', query='', sortBy='feat', started=false;
-let shopMode=LS.get('mejt_shopMode',null); // 'minecraft' or 'irl'
+let shopMode=LS.get('mejt_shopMode',null);
 let bannerData=LS.get('mejt_banner',{ticker:"Gratis Versand ab 29 € • Blitzangebote täglich • MEJT Store •",t0:"MEJT Premium Store",d0:"Entdecke exklusive Produkte und Items zu Top-Preisen.",b0:"Jetzt stöbern",i0:"⚡"});
 let admin=!CLOUD&&sessionStorage.getItem('mejt_admin')==='1';
 let orders=[], ordFilter='open', unsubOrders=null, ordFirst=true;
@@ -498,7 +495,7 @@ const hash=s=>{let h=5381;for(const c of s)h=((h<<5)+h+c.charCodeAt(0))>>>0;retu
 let creds=LS.get('mejt_creds',{u:'admin',h:hash('admin123')});
 
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-/* Währungsformatierung je nach Shop */
+
 const formatPrice=val=>{
   if(shopMode==='minecraft') return Number(val).toLocaleString('de-DE') + ' Emeralds 🟢';
   return Number(val).toLocaleString('de-DE',{style:'currency',currency:'EUR'});
@@ -526,7 +523,8 @@ window.toggleShopMode=function(){
 };
 
 function updateShopHeader(){
-  $('#shopSwitchBtn.shop-switch,#shopSwitchBtn').innerHTML = shopMode==='minecraft'?'🟢 Minecraft Shop':'📦 IRL Shop';
+  const btn = $('#shopSwitchBtn');
+  if(btn) btn.innerHTML = shopMode==='minecraft'?'🟢 Minecraft Shop':'📦 IRL Shop';
 }
 
 const permErr=e=>{console.error(e);toast('Fehler bei Datenoperation')};
@@ -568,7 +566,6 @@ function close(id){$('#'+id).classList.remove('show')}
 function confetti(){const cols=['#f59e0b','#fbbf24','#ef4444','#10b981','#38bdf8','#fff'];for(let i=0;i<80;i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*100+'vw';c.style.background=cols[i%cols.length];document.body.appendChild(c);c.animate([{transform:'translateY(0) rotate(0)',opacity:1},{transform:`translateY(${innerHeight+40}px) translateX(${(Math.random()-.5)*300}px) rotate(${Math.random()*900}deg)`,opacity:.8}],{duration:1600+Math.random()*1500,easing:'cubic-bezier(.2,.6,.4,1)'}).onfinish=()=>c.remove()}}
 function stars(r){return `<span class="starbox">★★★★★<i data-w="${Math.max(0,Math.min(5,r))/5*100}%">★★★★★</i></span>`}
 
-/* Banner laden */
 function applyBanner(){
   $('#tickerText').textContent=bannerData.ticker;
   $('#heroTitle0').textContent=bannerData.t0;
@@ -577,7 +574,6 @@ function applyBanner(){
   $('#heroIcon0').textContent=bannerData.i0;
 }
 
-/* Rendering */
 function catsForCurrentShop(){
   return [...new Set(products.filter(p=>(p.shop||'irl')===shopMode).map(p=>p.cat).filter(Boolean))];
 }
@@ -630,9 +626,8 @@ function renderGrid(){
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');e.target.querySelectorAll('.starbox i').forEach(i=>i.style.width=i.dataset.w);io.unobserve(e.target)}}),{threshold:.1});
 function observe(){$$('.card').forEach(c=>io.observe(c))}
 
-/* Warenkorb */
 function cartCount(){return Object.values(cart).reduce((a,b)=>a+b,0)}
-function updateBadges(){const b=$('#cartCount');b.textContent=cartCount();b.classList.remove('bump');void b.offsetWidth;b.classList.add('bump');$('#wishCount').textContent=wish.length}
+function updateBadges(){const b=$('#cartCount');b.textContent=cartCount();$('#wishCount').textContent=wish.length}
 function addToCart(id,n=1){const p=products.find(x=>x.id==id);if(!p)return;const cur=cart[id]||0;if(cur+n>p.stock){toast('Nicht genügend Bestand verfügbar');return}cart[id]=cur+n;saveCart();updateBadges();toast('Zum Warenkorb hinzugefügt');renderCart()}
 function renderCart(){
   const ids=Object.keys(cart).filter(id=>products.find(p=>p.id==id));
@@ -643,7 +638,6 @@ function renderCart(){
 function openCart(){renderCart();$('#drawer').classList.add('show');open('cartOv')}
 function closeCart(){$('#drawer').classList.remove('show');close('cartOv')}
 
-/* Detailansicht */
 function showDetail(id){
   const p=products.find(x=>x.id==id);if(!p)return;let qty=1;
   const imgs=p.images.length?p.images:[FALLBACK];
@@ -664,7 +658,6 @@ function showDetail(id){
   $('#dBuy').onclick=()=>{addToCart(id,qty);close('detailOv');setTimeout(showCheckout,300)};
 }
 
-/* Admin Panel */
 function setAdminUI(){$('#adminbar').classList.toggle('on',admin);const cu=CLOUD&&auth?auth.currentUser:null;$('#accLabel').textContent=admin?'Admin':cu?((cu.displayName\vert{}\vert{}cu.email\vert{}\vert{}'Konto').split(/[ @]/)[0]):'Anmelden';$$('.adminOnly').forEach(e=>e.style.display=admin?'':'none')}
 function renderAdminRows(){
   $('#aRows').innerHTML=products.map((p,i)=>`<tr style="animation-delay:${i*.02}s"><td><img src="${esc(safeUrl(p.images[0]))}"></td><td>${esc(p.name)}</td><td><span style="padding:2px 8px;border-radius:4px;font-size:11px;background:${p.shop==='minecraft'?'rgba(16,185,129,0.2)':'rgba(56,189,248,0.2)'};color:${p.shop==='minecraft'?'var(--green)':'var(--link)'}">${p.shop==='minecraft'?'Minecraft':'IRL'}</span></td><td>${esc(p.cat)}</td><td>${formatPrice(p.price)}</td><td>${p.stock}</td><td style="white-space:nowrap"><button class="btn sm2" data-act="aedit" data-id="${p.id}">Bearbeiten</button> <button class="btn red sm2" data-act="adel" data-id="${p.id}">Löschen</button></td></tr>`).join('')||'<tr><td colspan="7">Keine Produkte</td></tr>';
@@ -690,7 +683,6 @@ async function saveProd(){
   }catch(e){permErr(e)}
 }
 
-/* Bestellungen */
 const ORD_LABEL={open:'Offen',shipped:'Versendet',cancelled:'Storniert'};
 const ordTime=t=>new Date(t).toLocaleString('de-DE',{dateStyle:'medium',timeStyle:'short'});
 const openOrderCount=()=>orders.filter(o=>o.status==='open').length;
@@ -715,19 +707,7 @@ async function deleteOrder(o){
   if(CLOUD)await fs.deleteDoc(fs.doc(db,'orders',o.id));
   else{orders=orders.filter(x=>x.id!==o.id);LS.set('mejt_orders',orders)}
 }
-function watchOrders(on){
-  if(unsubOrders){unsubOrders();unsubOrders=null}
-  if(!CLOUD)return;
-  if(!on){orders=[];renderOrders();return}
-  ordFirst=true;
-  unsubOrders=fs.onSnapshot(fs.collection(db,'orders'),snap=>{
-    if(!ordFirst)snap.docChanges().forEach(ch=>{if(ch.type==='added'&&!ch.doc.metadata.hasPendingWrites)toast('Neue Bestellung eingegangen!')});
-    ordFirst=false;
-    orders=snap.docs.map(d=>({...d.data(),id:d.id}));
-    if(!admin){admin=true;setAdminUI()}
-    renderOrders();
-  },err=>{orders=[];renderOrders()});
-}
+
 function renderOrders(){
   const n=openOrderCount();
   $('#ordCount').textContent=n;$('#tabOrders').textContent='Bestellungen'+(n?` (${n})`:'');
@@ -757,7 +737,6 @@ function orderAction(act,id){
 
 function refresh(){renderNav();renderCatCards();renderGrid()}
 
-/* Events */
 document.addEventListener('click',e=>{
   const c=e.target.closest('[data-close]');if(c)close(c.dataset.close);
   if(e.target.classList.contains('ov')){if(e.target.id==='cartOv')closeCart();else e.target.classList.remove('show')}
@@ -841,7 +820,6 @@ $('#importBtn').onclick=()=>$('#importFile').click();
 $('#importFile').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=async()=>{try{await dbReplaceAll(normalize(JSON.parse(r.result)));refresh();renderAdminRows();toast('Import erfolgreich')}catch(x){toast('Fehler beim Import')}};r.readAsText(f)};
 $('#resetAll').onclick=async()=>{if(confirm('Auf Standardprodukte zurücksetzen?')){await dbReplaceAll(normalize(JSON.parse(JSON.stringify(DEFAULTS))));refresh();renderAdminRows();toast('Standard geladen')}};
 
-/* Banner Speichern */
 $('#saveBanner').onclick=()=>{
   bannerData={
     ticker:$('#bannerTicker').value,
@@ -858,13 +836,11 @@ $('#saveBanner').onclick=()=>{
 $('#backTop').onclick=()=>scrollTo({top:0,behavior:'smooth'});$('#toTop').onclick=$('#backTop').onclick;
 addEventListener('scroll',()=>{$('#toTop').classList.toggle('show',scrollY>500)});
 
-/* Init */
 $('#yr').textContent=new Date().getFullYear();
 (async()=>{
   await loadProducts();started=true;
   applyBanner();
   if(!shopMode){
-    // Zeige Shop-Auswahl-Modal
     $('#shopSelectorOverlay').style.display='flex';
   } else {
     $('#shopSelectorOverlay').style.display='none';
