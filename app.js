@@ -607,7 +607,7 @@ function renderOrders(){
     <div class="ordh"><span><b>${esc(o.orderNo)}</b> · ${ordTime(o.createdAt)} <span class="sb ${s}">${s==='mc'?'MINECRAFT':'IRL'}</span></span><span class="st ${esc(o.status)}">${esc(ORD_LABEL[o.status]||o.status)}</span></div>
     <div class="ordb">
       <div><h4>${s==='mc'?'Lieferung im Spiel':'Lieferadresse'}</h4><div style="font-size:14px;line-height:1.55">${delivHTML(o)}</div>${(o.customer||{}).note?`<div class="note" style="margin:8px 0 0">${esc(o.customer.note)}</div>`:''}</div>
-      <div><h4>Artikel</h4>${(o.items||[]).map(it=>`<div class="oi"><img src="${esc(safeUrl(it.image))}" onerror="this.src='${FALLBACK}'"><span>${esc(it.qty)}×${esc(it.name)}<br><small class="muted">${money(it.price,s)}</small></span></div>`).join('')}<div style="margin-top:8px;font-size:16px"><b>Summe: ${money(it.total,s)}</b></div><div style="font-size:12px;color:var(--muted)">${esc(o.pay||'')}</div></div>
+      <div><h4>Artikel</h4>${(o.items||[]).map(it=>`<div class="oi"><img src="${esc(safeUrl(it.image))}" onerror="this.src='${FALLBACK}'"><span>${esc(it.qty)}×${esc(it.name)}<br><small class="muted">${money(it.price,s)}</small></span></div>`).join('')}<div style="margin-top:8px;font-size:16px"><b>Summe: ${money(o.total,s)}</b></div><div style="font-size:12px;color:var(--muted)">${esc(o.pay||'')}</div></div>
     </div>
     <div class="orda">
       ${o.status==='open'?`<button class="btn sm2" data-act="oship" data-id="${esc(o.id)}"><span data-ic="check"></span> Als versendet markieren</button>`:''}
