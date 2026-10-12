@@ -497,8 +497,7 @@ let orders=[], ordFilter='open', unsubOrders=null, ordFirst=true;
 const hash=s=>{let h=5381;for(const c of s)h=((h<<5)+h+c.charCodeAt(0))>>>0;return h.toString(36)};
 let creds=LS.get('mejt_creds',{u:'admin',h:hash('admin123')});
 
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;n'}[c]));
-
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 /* Währungsformatierung je nach Shop */
 const formatPrice=val=>{
   if(shopMode==='minecraft') return Number(val).toLocaleString('de-DE') + ' Emeralds 🟢';
